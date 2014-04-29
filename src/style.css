@@ -3,7 +3,7 @@ body{
     position: relative;
     width: 100%;
     height: 100%;
-    padding-top: 60px;
+    padding-top: 50px;
 }
 
 .expression {
@@ -15,13 +15,8 @@ body{
     border: 1px solid #7eeafe; 
     position: relative;
     cursor: pointer;
-    /*-webkit-transform: scale(3) translate(0,65px);*/
 }
-/*.navbar-form {
-    display: flex;
-    align-items: center;
-    align-content: center;
-}*/
+
 .cell_empty {
     background-color: #7eeafe;
 }

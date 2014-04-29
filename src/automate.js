@@ -30,28 +30,27 @@ var automate = {
 			this.worker1.addEventListener('message', onWorkerMessage);
 			this.worker2.addEventListener('message', onWorkerMessage);
 
+			console.time('message');
 			this.worker1.postMessage({matrix: this.matrix.slice(0, half+1), start: 0, end: half});
 			this.worker2.postMessage({matrix: this.matrix.slice(half-1), start: 1, end: half+1});
-
 
 			var that = this,
 				firstDone = false,
 				secondDone = false,
 				changedCells = [];
 			function onWorkerMessage(event) {
+				event.target.removeEventListener('message', onWorkerMessage);
+				
+				console.timeEnd('message');
 				if (event.target.first) {
 					firstDone = true;
 				} else {
 					secondDone = true;
 				}
-
-				that.updateMatrix(event.data);
-
 				changedCells = changedCells.concat(event.data);
 
-				event.target.removeEventListener('message', onWorkerMessage);
-
 				if (firstDone && secondDone) {
+					that.updateMatrix(changedCells);
 					console.timeEnd('workers');
 					resolve(changedCells);
 				}
