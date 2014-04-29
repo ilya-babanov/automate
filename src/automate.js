@@ -8,32 +8,21 @@ var automate = {
 		this.worker1.first = true;
 		this.worker2 = fnToWorker(this.process);
 		this.worker2.first = false;
-		
-		var workerTest = fnToWorker(function () {return true;});
-		
-		setTimeout(function () {
-			console.time('workers');
-			this.worker1.addEventListener('message', onTestWorkerMessage);
-			this.worker1.postMessage({matrix: this.matrix, start: 0, end: this.matrix.length});
-			function onTestWorkerMessage(event) {
-				event.target.removeEventListener('message', onTestWorkerMessage);
-				console.timeEnd('workers');
-			}
-		}.bind(this), 1000);
 	},
 
 	stepPlain: function () {
+		console.time('plain');
 		this.epoch++;
 		return new Promise(function (resolve, reject) {
-			console.time('plain');
 			var changedData = this.process({matrix: this.matrix, start: 0, end: this.matrix.length});
-			console.timeEnd('plain');
 			this.updateMatrix(changedData);
+			console.timeEnd('plain');
 			resolve(changedData);
 		}.bind(this));
 	},
 
 	stepWorkers: function automateProcessStep() {
+		console.time('workers');
 		this.epoch++;
 		return new Promise(function (resolve, reject) {
 			var half = Math.round(this.matrix.length/2);
@@ -63,6 +52,7 @@ var automate = {
 				event.target.removeEventListener('message', onWorkerMessage);
 
 				if (firstDone && secondDone) {
+					console.timeEnd('workers');
 					resolve(changedCells);
 				}
 			}
