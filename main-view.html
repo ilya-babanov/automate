@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Linear Automate</title>
+    <link rel="stylesheet" href="libs/bootstrap.min.css"/>
+    <link rel="stylesheet" href="src/style.css"/>
+</head>
+
+<body ng-app="app" ng-controller="AutomateCtrl as ctrl">
+
+<!--<hr/>
+
+<div class="expression">
+    N<sub>i</sub><sub>,</sub><sub>j</sub> =
+    N<sub>i-1</sub><sub>,</sub><sub>j-1</sub>
+    <select class="inlineSelect" ng-model="firstAction" ng-options="c.title for c in actionOptions"></select>
+    N<sub>i-1</sub><sub>,</sub><sub>j</sub>
+    <select class="inlineSelect" ng-model="secondAction" ng-options="c.title for c in actionOptions"></select>
+    N<sub>i-1</sub><sub>,</sub><sub>j+1</sub>
+</div>-->
+
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar-form">
+        <label class="navbar-right">
+            Speed (ms): <input class="form-control form-control__number navbar__input" type="number" ng-model="ctrl.timeoutMs" step="50" min="50"/>
+        </label>
+        <label class="navbar-right">
+            Rules:
+            <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="born"/>
+            <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="save"/>
+            &nbsp;&nbsp;
+        </label>
+        <label class="navbar-right navbar-checkbox">
+            <input type="checkbox" class="navbar__input" ng-model="ctrl.useWorkers" ng-change="ctrl.toggleStepLogic()"/>
+            WebWorkers
+            &nbsp;&nbsp;
+        </label>
+        <label class="navbar-right navbar-checkbox">
+            Epoch: {{ctrl.automate.epoch}}
+            &nbsp;&nbsp;
+        </label>
+        
+        <button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
+        <button class="btn btn-success" ng-click="ctrl.processStep()">One step</button>
+
+        <button class="btn btn-info" ng-click="ctrl.randomMatrix()">Random</button>
+        <button class="btn btn-info" ng-click="ctrl.clearMatrix()">Clear</button>
+
+        <button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
+            
+    </div>
+</nav>
+
+<div class="container-matrix">
+    <!--<div class="container-matrix__matrix">
+        <div ng-repeat="row in ctrl.automate.matrix" class="row">
+            <div ng-repeat="cell in row"
+                 ng-click="cell.state = cell.state == 0 ? 1 : 0"
+                 ng-class="{cell_empty: cell.state == 0, cell_filled: cell.state == 1}"
+                 class="cell">
+            </div>
+        </div>
+    </div>-->
+    <table class="automate-table">
+    </table>
+</div>
+
+
+<script type="text/javascript" src="libs/angular.min.js"></script>
+<script type="text/javascript" src="src/utils.js"></script>
+<script type="text/javascript" src="src/cell.js"></script>
+<script type="text/javascript" src="src/automate.js"></script>
+<script type="text/javascript" src="src/main.js"></script>
+</body>
+</html>
