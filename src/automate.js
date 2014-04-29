@@ -2,34 +2,48 @@ var automate = {
 	epoch: 0,
 	matrix: [],
 	//workers: [],
-	
+
 	initWorkers: function () {
 		this.worker1 = fnToWorker(this.process);
 		this.worker1.first = true;
 		this.worker2 = fnToWorker(this.process);
 		this.worker2.first = false;
+		
+		var workerTest = fnToWorker(function () {return true;});
+		
+		setTimeout(function () {
+			console.time('workers');
+			this.worker1.addEventListener('message', onTestWorkerMessage);
+			this.worker1.postMessage({matrix: this.matrix, start: 0, end: this.matrix.length});
+			function onTestWorkerMessage(event) {
+				event.target.removeEventListener('message', onTestWorkerMessage);
+				console.timeEnd('workers');
+			}
+		}.bind(this), 1000);
 	},
 
 	stepPlain: function () {
 		this.epoch++;
 		return new Promise(function (resolve, reject) {
-			var changedData = this.process({matrix: this.matrix});
+			console.time('plain');
+			var changedData = this.process({matrix: this.matrix, start: 0, end: this.matrix.length});
+			console.timeEnd('plain');
 			this.updateMatrix(changedData);
 			resolve(changedData);
 		}.bind(this));
 	},
-	
+
 	stepWorkers: function automateProcessStep() {
 		this.epoch++;
 		return new Promise(function (resolve, reject) {
 			var half = Math.round(this.matrix.length/2);
-			
+
 			this.worker1.addEventListener('message', onWorkerMessage);
 			this.worker2.addEventListener('message', onWorkerMessage);
-			
-			this.worker1.postMessage({matrix: this.matrix.slice(0, half+1), first: true});
-			this.worker2.postMessage({matrix: this.matrix.slice(half-1), first: false});
-			
+
+			this.worker1.postMessage({matrix: this.matrix.slice(0, half+1), start: 0, end: half});
+			this.worker2.postMessage({matrix: this.matrix.slice(half-1), start: 1, end: half+1});
+
 
 			var that = this,
 				firstDone = false,
@@ -56,45 +70,44 @@ var automate = {
 	},
 
 	process: function (data) {
-		var copiedMatrix = [],
+		var topCopiedRow = [],
+			middleCopiedRow = [],
 			changedCells = [];
-		for (var i = 0, len1 = data.matrix.length; i < len1; i++) {
-			copiedMatrix[i] = [];
-			for (var j = 0, len2 = data.matrix[i].length; j < len2; j++) {
-				copiedMatrix[i][j] = {state: data.matrix[i][j].state};
-			}
+
+		for (var j = 0, len2 = data.matrix[0].length; j < len2; j++) {
+			topCopiedRow[j] = {state: 0};
 		}
-		var startIndex = data.first ? 0 : 1,
-			corrector = data.first ? 1 : 0;
-		for (i = startIndex; i < len1-corrector; i++) {
+
+		for (var i = data.start; i < data.end; i++) {
 			for (j = 0; j < len2; j++) {
-				var topRow = copiedMatrix[i-1] || [],
-					middleRow = copiedMatrix[i] || [],
-					bottomRow = copiedMatrix[i+1] || [],
-					currentCopiedCell = copiedMatrix[i][j],
-					currentCell = data.matrix[i][j],
-					cells = [
-							topRow[j-1] || {state: 0},
-							topRow[j] || {state: 0},
-							topRow[j+1] || {state: 0},
+				middleCopiedRow[j] = {state: data.matrix[i][j].state};
+				var bottomRow = data.matrix[i+1] || [],
+					middleRow = data.matrix[i] || [],
+					currentCell = middleRow[j],
+					oldState = currentCell.state,
+					sum = [
+							topCopiedRow[j-1] || {state: 0},
+							topCopiedRow[j] || {state: 0},
+							topCopiedRow[j+1] || {state: 0},
 							middleRow[j+1] || {state: 0},
 							bottomRow[j+1] || {state: 0},
 							bottomRow[j] || {state: 0},
 							bottomRow[j-1] || {state: 0},
-							middleRow[j-1] || {state: 0}
-					],
-					sum = cells.reduce(function (prev, current) {
-						return prev + current.state;
-					}, 0);
-				if (currentCopiedCell.state === 1) {
+							middleCopiedRow[j-1] || {state: 0}
+					].reduce(function (prev, current) {
+							return prev + current.state;
+						}, 0);
+				if (oldState === 1) {
 					currentCell.state = +(currentCell.rule.save.indexOf(sum) !== -1);
 				} else {
 					currentCell.state = +(currentCell.rule.born.indexOf(sum) !== -1);
 				}
-				if (currentCopiedCell.state !== currentCell.state) {
+				if (oldState !== currentCell.state) {
 					changedCells.push(currentCell);
 				}
 			}
+			topCopiedRow = middleCopiedRow;
+			middleCopiedRow = [];
 		}
 		return changedCells;
 	},
@@ -103,13 +116,13 @@ var automate = {
 		for (var i = 0; i < rowsCount; i++) {
 			this.matrix[i] = [];
 			for (var j = 0; j < cellsCount; j++) {
-				var state = random ? Math.round(Math.random()) : 0;
+				var state = random ? Math.round(Math.random()*0.65) : 0;
 				this.matrix[i][j] =  new Cell(state, i, j, rule);
 			}
 		}
 		return this.matrix;
 	},
-	
+
 	updateMatrix: function (changedData) {
 		for (var i = 0, len1 = changedData.length; i < len1; i++) {
 			var changedCell = changedData[i];
