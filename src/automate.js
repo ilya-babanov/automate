@@ -1,13 +1,14 @@
 var automate = {
 	epoch: 0,
+	stopped: true,
 	matrix: [],
-	//workers: [],
+	workers: [],
 
-	initWorkers: function () {
-		this.worker1 = fnToWorker(this.process);
-		this.worker1.first = true;
-		this.worker2 = fnToWorker(this.process);
-		this.worker2.first = false;
+	initWorkers: function (count) {
+		this.workersLength = count;
+		while (count--) {
+			this.workers.push(fnToWorker(this.process));
+		}
 	},
 
 	stepPlain: function () {
@@ -24,32 +25,36 @@ var automate = {
 	stepWorkers: function automateProcessStep() {
 		console.time('workers');
 		this.epoch++;
-		return new Promise(function (resolve, reject) {
-			var half = Math.round(this.matrix.length/2);
-
-			this.worker1.addEventListener('message', onWorkerMessage);
-			this.worker2.addEventListener('message', onWorkerMessage);
-
-			console.time('message');
-			this.worker1.postMessage({matrix: this.matrix.slice(0, half+1), start: 0, end: half});
-			this.worker2.postMessage({matrix: this.matrix.slice(half-1), start: 1, end: half+1});
+		return new Promise(function (resolve) {
+			var part = Math.round(this.matrix.length/this.workersLength),
+				startPart = 0, 
+				endPart = part + 1, 
+				startIndex = 0, 
+				endIndex = part;
+			for (var i = 0; i < this.workersLength; i++) {
+				var worker = this.workers[i];
+				worker.addEventListener('message', onWorkerMessage);
+				worker.postMessage({
+					matrix: this.matrix.slice(startPart, endPart), 
+					start: startIndex, 
+					end: endIndex
+				});
+				startPart = (i+1)*part - 1;
+				endPart += part;
+				startIndex = 1;
+				endIndex = part + 1;
+			}
 
 			var that = this,
-				firstDone = false,
-				secondDone = false,
+				workersDone = 0,
 				changedCells = [];
+
 			function onWorkerMessage(event) {
 				event.target.removeEventListener('message', onWorkerMessage);
-				
-				console.timeEnd('message');
-				if (event.target.first) {
-					firstDone = true;
-				} else {
-					secondDone = true;
-				}
+				workersDone++;
 				changedCells = changedCells.concat(event.data);
 
-				if (firstDone && secondDone) {
+				if (workersDone === that.workersLength) {
 					that.updateMatrix(changedCells);
 					console.timeEnd('workers');
 					resolve(changedCells);
@@ -63,8 +68,14 @@ var automate = {
 			middleCopiedRow = [],
 			changedCells = [];
 
-		for (var j = 0, len2 = data.matrix[0].length; j < len2; j++) {
-			topCopiedRow[j] = {state: 0};
+		if (data.start !== 0) {
+			for (var j = 0, len2 = data.matrix[0].length; j < len2; j++) {
+				topCopiedRow[j] = {state: data.matrix[0][j].state};
+			}
+		} else {
+			for (j = 0, len2 = data.matrix[0].length; j < len2; j++) {
+				topCopiedRow[j] = {state: 0};
+			}
 		}
 
 		for (var i = data.start; i < data.end; i++) {
@@ -113,6 +124,9 @@ var automate = {
 	},
 
 	updateMatrix: function (changedData) {
+		if (this.stopped) {
+			return;
+		}
 		for (var i = 0, len1 = changedData.length; i < len1; i++) {
 			var changedCell = changedData[i];
 			this.matrix[changedCell.i][changedCell.j].state = changedCell.state;

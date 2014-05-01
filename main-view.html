@@ -8,41 +8,46 @@
 
 <body ng-app="app" ng-controller="AutomateCtrl as ctrl">
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="navbar-form">
-        <label class="navbar-right">
-            Speed (ms): <input class="form-control form-control__number navbar__input" type="number" ng-model="ctrl.timeoutMs" step="10" min="10"/>
-        </label>
-        <label class="navbar-right">
-            Rules:
-            <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="born"/>
-            <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="save"/>
-            &nbsp;&nbsp;
-        </label>
-        <label class="navbar-right navbar-checkbox">
-            <input type="checkbox" class="navbar__input" ng-model="ctrl.useWorkers" ng-change="ctrl.toggleStepLogic()"/>
-            WebWorkers
-            &nbsp;&nbsp;
-        </label>
-        <label class="navbar-right navbar-checkbox">
-            Epoch: {{ctrl.automate.epoch}}
-            &nbsp;&nbsp;
-        </label>
-        
-        <button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
-        <button class="btn btn-success" ng-click="ctrl.processStep()">One step</button>
 
-        <button class="btn btn-info" ng-click="ctrl.randomMatrix()">Random</button>
-        <button class="btn btn-info" ng-click="ctrl.clearMatrix()">Clear</button>
+<div class="content">
+    <div class="side-bar">
+        <div class="navbar-form">
+            <p>
+                <button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
+                <button class="btn btn-success" ng-click="ctrl.processStep()">One step</button>
+            </p>
+            <p>
+                <button class="btn btn-info" ng-click="ctrl.randomMatrix()">Random</button>
+                <button class="btn btn-info" ng-click="ctrl.clearMatrix()">Clear</button>
+            </p>
+            <p>
+                <button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
+            </p>
 
-        <button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
-            
+            <p>
+                Speed (ms): <input class="form-control form-control__number navbar__input" type="number" ng-model="ctrl.timeoutMs" step="10" min="10"/>
+            </p>
+            <p class="navbar-checkbox">
+                <input type="checkbox" class="navbar__input" ng-model="ctrl.useWorkers" ng-change="ctrl.toggleStepLogic()" id="webworkersid"/>
+                <label for="webworkersid">WebWorkers</label>
+            </p>
+            <p class="navbar-checkbox">
+                Epoch: {{ctrl.automate.epoch}}
+            </p>
+            <!--<label>
+                Rules:
+                <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="born"/>
+                <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="save"/>
+                &nbsp;&nbsp;
+            </label>-->
+        </div>
     </div>
-</nav>
+    
+    <div class="container-matrix">
+        <canvas class="automate-canvas" width="1800" height="840"></canvas>
+        <table class="automate-table"></table>
+    </div>
 
-<div class="container-matrix">   
-    <canvas class="automate-canvas" width="1800" height="840"></canvas>
-    <table class="automate-table"></table>
 </div>
 
 

@@ -6,17 +6,16 @@ var AutomateCtrl = function ($timeout, $scope) {
 	this.$timeout = $timeout;
 	this.timeoutObj = {};
 	this.timeoutMs = 10;
-	this.started = true;
+
 	this.canvasRatio = 6;
 	this.binded = {
 		onMouseMove: this.onMouseMove.bind(this)
 	};
 	
-	
 	this.automate = automate;
-	automate.initWorkers();
+	automate.initWorkers(4);
 
-	this.useWorkers = false;
+	this.useWorkers = true;
 	this.toggleStepLogic();
 
 	this.rule = {
@@ -33,14 +32,14 @@ var AutomateCtrl = function ($timeout, $scope) {
 
 AutomateCtrl.prototype.startLogic = function startLogicAutomateCtrl() {
 	clearTimeout(this.timeoutObj.$$timeoutId);
-	this.started = true;
+	this.automate.stopped = false;
 	this.step();
 	this.run();
 };
 
 AutomateCtrl.prototype.step = function stepAutomateCtrl() {
 	return this._step().then(function (changedCells) {
-		if (this.started) {
+		if (!this.automate.stopped) {
 			//this.updateTable(changedCells);
 			this.updateCanvas(changedCells);
 		}
@@ -57,15 +56,15 @@ AutomateCtrl.prototype.toggleStepLogic = function toggleStepLogicAutomateCtrl() 
 };
 
 AutomateCtrl.prototype.stopLogic = function stopLogicAutomateCtrl() {
-	this.started = false;
+	this.automate.stopped = true;
 	clearTimeout(this.timeoutObj.$$timeoutId);
 };
 
 AutomateCtrl.prototype.processStep = function processStepAutomateCtrl() {
 	this.stopLogic();
-	this.started = true;
+	this.automate.stopped = false;
 	this.step().then(function () {
-		this.started = false;
+		this.automate.stopped = true;
 	}.bind(this));
 };
 
@@ -86,12 +85,13 @@ AutomateCtrl.prototype.randomMatrix = function randomMatrixAutomateCtrl() {
 AutomateCtrl.prototype.run = function runAutomateCtrl() {
 	this.timeoutObj = this.$timeout(function () {
 		this.step().then(function () {
-			if (this.started) {
+			if (!this.automate.stopped) {
 				this.run();
 			}
 		}.bind(this));
 	}.bind(this), this.timeoutMs);
 };
+/*
 
 AutomateCtrl.prototype.createTable = function createTableAutomateCtrl() {
 	this.table = document.querySelector('.automate-table');
@@ -151,6 +151,7 @@ AutomateCtrl.prototype.onTableClick = function onTableClickAutomateCtrl(event) {
 	this.changeCellState(td, td.state === 1 ? 0 : 1);
 	this.automate.matrix[td.iRow][td.iCell].state = td.state;
 };
+*/
 
 AutomateCtrl.prototype.createCanvas = function createCanvasAutomateCtrl() {
 	this.canvas = document.querySelector('.automate-canvas');
@@ -163,22 +164,22 @@ AutomateCtrl.prototype.createCanvas = function createCanvasAutomateCtrl() {
 };
 
 AutomateCtrl.prototype.updateCanvas = function updateCanvasAutomateCtrl(changedCells, isMatrix) {
-	//console.time('loop');
+	console.time('updateCanvas');
 	if (isMatrix) {
 		for (var i = 0, len1 = changedCells.length; i < len1; i++) {
 			for (var j = 0, len2 = changedCells[i].length; j < len2; j++) {
-				this.ctx.fillStyle = changedCells[i][j].state ? '#FFFFFF' : '#7eeafe';
+				this.ctx.fillStyle = changedCells[i][j].state ? '#7eeafe' : '#FFFFFF';
 				this.ctx.fillRect(j*this.canvasRatio, i*this.canvasRatio, this.canvasRatio, this.canvasRatio);
 			}
 		}
 	} else {
 		for (i = 0, len1 = changedCells.length; i < len1; i++) {
 			var changedCell = changedCells[i];
-			this.ctx.fillStyle = changedCell.state ? '#FFFFFF' : '#7eeafe';
+			this.ctx.fillStyle = changedCell.state ? '#7eeafe' : '#FFFFFF';
 			this.ctx.fillRect(changedCell.j*this.canvasRatio, changedCell.i*this.canvasRatio, this.canvasRatio, this.canvasRatio);
 		}
 	}
-	//console.timeEnd('loop');
+	console.timeEnd('updateCanvas');
 };
 
 AutomateCtrl.prototype.onCanvasClick = function onCanvasClickAutomateCtrl(event, write) {
