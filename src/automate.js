@@ -1,13 +1,20 @@
 var automate = {
 	epoch: 0,
 	stopped: true,
-	matrix: [],
+	
+	length: 0,
+	height: 0,
+	width: 0,
+	
 	workers: [],
+	statesBuffer: null,
+	statesView: null,
 
 	initWorkers: function (count) {
+		var transferList = ['result.changesBuffer'];
 		this.workersLength = count;
 		while (count--) {
-			this.workers.push(fnToWorker(this.process));
+			this.workers.push(fnToWorker(this.process, transferList));
 		}
 	},
 
@@ -15,10 +22,16 @@ var automate = {
 		console.time('plain');
 		this.epoch++;
 		return new Promise(function (resolve, reject) {
-			var changedData = this.process({matrix: this.matrix, start: 0, end: this.matrix.length});
-			this.updateMatrix(changedData);
+			var result = this.process({
+				statesBuffer: this.statesBuffer, 
+				start: 0, 
+				end: this.height,
+				width: this.width,
+				offset: 0
+			});
 			console.timeEnd('plain');
-			resolve(changedData);
+			this.updateMatrix([result.changesBuffer]);
+			resolve();
 		}.bind(this));
 	},
 
@@ -26,19 +39,24 @@ var automate = {
 		console.time('workers');
 		this.epoch++;
 		return new Promise(function (resolve) {
-			var part = Math.round(this.matrix.length/this.workersLength),
+			var part = Math.round(this.height/this.workersLength),
 				startPart = 0, 
 				endPart = part + 1, 
 				startIndex = 0, 
 				endIndex = part;
 			for (var i = 0; i < this.workersLength; i++) {
-				var worker = this.workers[i];
+				var worker = this.workers[i],
+					offset = startPart*this.width,
+					data = {
+						statesBuffer: this.statesBuffer.slice(offset, endPart*this.width),
+						start: startIndex,
+						end: endIndex,
+						width: this.width,
+						offset: offset
+					};
 				worker.addEventListener('message', onWorkerMessage);
-				worker.postMessage({
-					matrix: this.matrix.slice(startPart, endPart), 
-					start: startIndex, 
-					end: endIndex
-				});
+				worker.postMessage(data, [data.statesBuffer]);
+				
 				startPart = (i+1)*part - 1;
 				endPart += part;
 				startIndex = 1;
@@ -47,89 +65,100 @@ var automate = {
 
 			var that = this,
 				workersDone = 0,
-				changedCells = [];
+				changes = [];
 
 			function onWorkerMessage(event) {
 				event.target.removeEventListener('message', onWorkerMessage);
 				workersDone++;
-				changedCells = changedCells.concat(event.data);
-
+				changes.push(event.data.changesBuffer);
 				if (workersDone === that.workersLength) {
-					that.updateMatrix(changedCells);
 					console.timeEnd('workers');
-					resolve(changedCells);
+					that.updateMatrix(changes);
+					resolve();
 				}
 			}
 		}.bind(this));
 	},
-
+	
 	process: function (data) {
-		var topCopiedRow = [],
-			middleCopiedRow = [],
-			changedCells = [];
-
+		var topCopiedRow = new Uint8Array(data.width),
+			middleCopiedRow = new Uint8Array(data.width),
+			statesView = new Uint8Array(data.statesBuffer),
+			changedCells = [],
+			currentIndex = 0, relativeIndex = 0, bottomIndex = 0,
+			end = data.width*data.end;
+		
 		if (data.start !== 0) {
-			for (var j = 0, len2 = data.matrix[0].length; j < len2; j++) {
-				topCopiedRow[j] = {state: data.matrix[0][j].state};
-			}
-		} else {
-			for (j = 0, len2 = data.matrix[0].length; j < len2; j++) {
-				topCopiedRow[j] = {state: 0};
+			for (currentIndex; currentIndex < data.width; currentIndex++) {
+				topCopiedRow[currentIndex] = statesView[currentIndex];
 			}
 		}
+		
+		currentIndex = data.start*data.width;
+		relativeIndex = 0;
+		while (currentIndex < end) {
+			bottomIndex = currentIndex + data.width;
+			var oldIndex = middleCopiedRow[relativeIndex] = statesView[currentIndex],
+				sum = (topCopiedRow[relativeIndex-1] || 0) +
+					topCopiedRow[relativeIndex] +
+					(topCopiedRow[relativeIndex+1] || 0) +
+					(statesView[currentIndex+1] || 0) +
+					(statesView[bottomIndex+1] || 0) +
+					statesView[bottomIndex] +
+					(statesView[bottomIndex-1] || 0) +
+					(middleCopiedRow[relativeIndex-1] || 0);
 
-		for (var i = data.start; i < data.end; i++) {
-			for (j = 0; j < len2; j++) {
-				middleCopiedRow[j] = {state: data.matrix[i][j].state};
-				var bottomRow = data.matrix[i+1] || [],
-					middleRow = data.matrix[i] || [],
-					currentCell = middleRow[j],
-					oldState = currentCell.state,
-					sum = [
-							topCopiedRow[j-1] || {state: 0},
-							topCopiedRow[j] || {state: 0},
-							topCopiedRow[j+1] || {state: 0},
-							middleRow[j+1] || {state: 0},
-							bottomRow[j+1] || {state: 0},
-							bottomRow[j] || {state: 0},
-							bottomRow[j-1] || {state: 0},
-							middleCopiedRow[j-1] || {state: 0}
-					].reduce(function (prev, current) {
-							return prev + current.state;
-						}, 0);
-				if (oldState === 1) {
-					currentCell.state = +(currentCell.rule.save.indexOf(sum) !== -1);
-				} else {
-					currentCell.state = +(currentCell.rule.born.indexOf(sum) !== -1);
-				}
-				if (oldState !== currentCell.state) {
-					changedCells.push(currentCell);
-				}
+			if (middleCopiedRow[relativeIndex] === 1) {
+				statesView[currentIndex] = +(sum === 2 || sum === 3);
+			} else {
+				statesView[currentIndex] = +(sum === 3);
 			}
-			topCopiedRow = middleCopiedRow;
-			middleCopiedRow = [];
+			if (statesView[currentIndex] !== middleCopiedRow[relativeIndex]) {
+				changedCells.push(statesView[currentIndex]);
+				changedCells.push(currentIndex+data.offset);
+			}
+			currentIndex++;
+			relativeIndex = currentIndex % data.width;
+			if (relativeIndex === 0) {
+				topCopiedRow = middleCopiedRow;
+				middleCopiedRow = new Uint8Array(data.width);
+			}
 		}
-		return changedCells;
+		return {changesBuffer: new Uint32Array(changedCells).buffer};
 	},
 
 	createMatrix: function createMatrixAutomateCtrl(rowsCount, cellsCount, rule, random) {
-		for (var i = 0; i < rowsCount; i++) {
-			this.matrix[i] = [];
-			for (var j = 0; j < cellsCount; j++) {
-				var state = random ? Math.round(Math.random()*0.65) : 0;
-				this.matrix[i][j] =  new Cell(state, i, j, rule);
-			}
+		this.length = rowsCount*cellsCount;
+		this.height = rowsCount;
+		this.width = cellsCount;
+		this.statesBuffer = new ArrayBuffer(this.length);
+		this.statesView = new Uint8Array(this.statesBuffer);
+		for (var i = 0; i < this.length; i++) {
+			this.statesView[i] = random ? Math.round(Math.random()*0.75) : 0;
 		}
-		return this.matrix;
+		return this.statesView;
 	},
 
 	updateMatrix: function (changedData) {
 		if (this.stopped) {
 			return;
 		}
+		console.time('updateViewAndMatrix');
 		for (var i = 0, len1 = changedData.length; i < len1; i++) {
-			var changedCell = changedData[i];
-			this.matrix[changedCell.i][changedCell.j].state = changedCell.state;
+			var changesBuffer = changedData[i],
+				changesArray = new Uint32Array(changesBuffer),
+				j = changesArray.length-1;
+			while (j >= 0) {
+				var index = changesArray[j],
+					value = changesArray[j-1];
+				this.statesView[index] = value;
+				this.updateView(value, index);
+				j -= 2;
+			}
 		}
-	}
+		console.timeEnd('updateViewAndMatrix');
+	},
+
+	// Implements in view
+	updateView: function (value, index) {}
 };
