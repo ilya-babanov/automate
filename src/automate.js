@@ -95,9 +95,9 @@ var automate = {
 		}
 		
 		currentIndex = data.start*data.width;
+		bottomIndex = currentIndex + data.width;
 		relativeIndex = 0;
 		while (currentIndex < end) {
-			bottomIndex = currentIndex + data.width;
 			var oldIndex = middleCopiedRow[relativeIndex] = statesView[currentIndex],
 				sum = (topCopiedRow[relativeIndex-1] || 0) +
 					topCopiedRow[relativeIndex] +
@@ -108,16 +108,21 @@ var automate = {
 					(statesView[bottomIndex-1] || 0) +
 					(middleCopiedRow[relativeIndex-1] || 0);
 
-			if (middleCopiedRow[relativeIndex] === 1) {
-				statesView[currentIndex] = +(sum === 2 || sum === 3);
+			if (oldIndex === 1 && (sum === 2 || sum === 3) ) {
+				statesView[currentIndex] = 1;
+			} else if (sum === 3) {
+				statesView[currentIndex] = 1;
 			} else {
-				statesView[currentIndex] = +(sum === 3);
+				statesView[currentIndex] = 0;
 			}
-			if (statesView[currentIndex] !== middleCopiedRow[relativeIndex]) {
+
+			if (statesView[currentIndex] !== oldIndex) {
 				changedCells.push(statesView[currentIndex]);
 				changedCells.push(currentIndex+data.offset);
 			}
+
 			currentIndex++;
+			bottomIndex++;
 			relativeIndex = currentIndex % data.width;
 			if (relativeIndex === 0) {
 				topCopiedRow = middleCopiedRow;
