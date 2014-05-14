@@ -7,7 +7,8 @@ var AutomateCtrl = function ($timeout, $scope) {
 	this.timeoutObj = {};
 	this.timeoutMs = 20;
 
-	this.canvasRatio = 6;
+	this.canvasRatio = 8;
+	this.cellSize = this.canvasRatio - 2;
 	this.binded = {
 		onMouseMove: this.onMouseMove.bind(this)
 	};
@@ -99,6 +100,9 @@ AutomateCtrl.prototype.updateWholeCanvas = function updateWholeCanvas(data) {
 		rowIndex = 0,
 		cellIndex = 0;
 	while (i < data.length) {
+		//draw cell borders
+		this.ctx.strokeRect(cellIndex*this.canvasRatio, rowIndex*this.canvasRatio, this.canvasRatio, this.canvasRatio);
+		//fill cells with color
 		this.updateCanvasCell(data[i], cellIndex, rowIndex);
 		i++;
 		cellIndex = i % this.cellsCount;
@@ -115,8 +119,7 @@ AutomateCtrl.prototype.onUpdateView = function onUpdateView(value, index) {
 
 AutomateCtrl.prototype.updateCanvasCell = function updateCanvasCellAutomateCtrl(value, x, y) {
 	this.ctx.fillStyle = value ? '#7eeafe' : '#FFFFFF';
-	this.ctx.fillRect(x*this.canvasRatio, y*this.canvasRatio, this.canvasRatio, this.canvasRatio);
-	this.ctx.strokeRect(x*this.canvasRatio, y*this.canvasRatio, this.canvasRatio, this.canvasRatio);
+	this.ctx.fillRect(x*this.canvasRatio+1, y*this.canvasRatio+1, this.cellSize, this.cellSize);
 };
 
 AutomateCtrl.prototype.onCanvasClick = function onCanvasClick(event, write) {
