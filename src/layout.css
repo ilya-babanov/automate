@@ -1,0 +1,52 @@
+html,
+body,
+content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    position: relative;
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    align-content: stretch;
+    height: 100%;
+}
+
+.side-bar {
+    text-align: center;
+    border-right: 1px solid #7eeafe;
+    width: 250px;
+}
+
+.form-control__number {
+    width: 100px;
+    display: inline;
+}
+
+
+.navbar__input {
+    width: 65px;
+    padding-right: 2px;
+}
+
+.navbar__sub-bar {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.container-matrix {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+}
+
+.automate-canvas {
+    cursor: pointer;
+}

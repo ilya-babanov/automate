@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8"/>
     <title>Linear Automate</title>
     <link rel="stylesheet" href="libs/bootstrap.min.css"/>
-    <link rel="stylesheet" href="src/style.css"/>
+    <link rel="stylesheet" href="src/layout.css"/>
+    <link rel="stylesheet" href="src/presets.css"/>
 </head>
 
 <body ng-app="app" ng-controller="AutomateCtrl as ctrl">
 
 
 <div class="content">
+    
     <div class="side-bar">
         <div class="navbar-form">
             <p>
@@ -24,23 +27,52 @@
                 <button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
             </p>
 
-            <p>
-                Speed (ms): <input class="form-control form-control__number navbar__input" type="number" ng-model="ctrl.timeoutMs" step="10" min="10"/>
-            </p>
             <p class="navbar-checkbox">
-                <input type="checkbox" class="navbar__input" ng-model="ctrl.useWorkers" ng-change="ctrl.toggleStepLogic()" id="webworkersid"/>
-                <label for="webworkersid">WebWorkers</label>
+                <label>
+                    <input type="checkbox" ng-model="ctrl.useWorkers"
+                           ng-change="ctrl.toggleStepLogic()" id="webworkersid"/>
+                    Web Workers
+                </label>
             </p>
-            <p class="navbar-checkbox">
+            
+            <p> 
                 Epoch: {{ctrl.automate.epoch}}
             </p>
-            <!--<label>
-                Rules:
-                <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="born"/>
-                <input class="form-control form-control__number navbar__input" type="number" step="1" min="0" max="8" placeholder="save"/>
-                &nbsp;&nbsp;
-            </label>-->
+            
+            <div class="navbar__sub-bar">
+                <p>
+                Speed (ms): <input class="form-control form-control__number navbar__input" type="number"
+                ng-model="ctrl.timeoutMs" step="10" min="10"/>
+                </p>
+                <p>
+                Rows: <input class="form-control form-control__number navbar__input" type="number"
+                ng-model="ctrl.rowsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                </p>
+                <p>
+                Columns: <input class="form-control form-control__number navbar__input" type="number"
+                ng-model="ctrl.cellsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                </p>
+                <p>
+                Size: <input class="form-control form-control__number navbar__input" type="number"
+                ng-model="ctrl.canvasRatio" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                </p>
+            </div>
         </div>
+        
+        <div ng-controller="PresetsCtrl as presetsCtrl">
+            <button class="btn btn-info" ng-click="presetsCtrl.showPresets = !presetsCtrl.showPresets">
+                {{ presetsCtrl.showPresets ? "Hide " : "Show " }} presets
+            </button>
+            <div class="presets-list" ng-hide="!presetsCtrl.showPresets">
+                <p>Drug and drop one of the links to canvas</p>
+                <ul>
+                    <li ng-repeat="preset in presetsCtrl.presets">
+                        <a href="">{{preset.name}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
     </div>
     
     <div class="container-matrix">
@@ -51,9 +83,12 @@
 
 
 <script type="text/javascript" src="libs/angular.min.js"></script>
+<script type="text/javascript" src="libs/angular-animate.min.js"></script>
+<script type="text/javascript" src="src/app.js"></script>
 <script type="text/javascript" src="src/utils.js"></script>
-<script type="text/javascript" src="src/cell.js"></script>
 <script type="text/javascript" src="src/automate.js"></script>
 <script type="text/javascript" src="src/automateCtrl.js"></script>
+<script type="text/javascript" src="src/presetsConfig.js"></script>
+<script type="text/javascript" src="src/presetsCtrl.js"></script>
 </body>
 </html>

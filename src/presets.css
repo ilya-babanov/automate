@@ -1,0 +1,18 @@
+.presets-list {
+    padding: 10px;
+    text-align: left;
+}
+
+.presets-list.ng-hide-remove,
+.presets-list.ng-hide-add {
+    transition: all 10.55s ease;
+    display: block!important;
+}
+.presets-list.ng-hide-add.ng-hide-add-active,
+.presets-list.ng-hide-remove {
+    opacity: 0;
+}
+.presets-list.ng-hide-add,
+.presets-list.ng-hide-remove.ng-hide-remove-active{
+    opacity: 1;
+}
