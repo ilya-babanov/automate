@@ -1,28 +1,27 @@
 (function () {
 	var $timeout,
 		runTimeoutPromise,
-		changeSizePromise;
+		changeSizePromise,
+		canvasData,
+		canvasService;
 	
-	var AutomateCtrl = function ($timeoutInstance) {
+	var AutomateCtrl = function ($timeoutInstance, canvasServiceObject) {
 		$timeout = $timeoutInstance;
-		this.automate = automate;
-
-		this.rowsCount = 60;
-		this.cellsCount = 90;
-		
 		this.timeoutMs = 10;
+		this.canvasData = canvasData = canvasServiceObject.canvasData;
+		this.automate = automate;
+		canvasService = canvasServiceObject;
+		
+		canvasData.rowsCount = 20;
+		canvasData.cellsCount = 40;
+		canvasData.canvasRatio = 22;
+		canvasData.cellSize = canvasData.canvasRatio - 2;
+		
 
-		this.canvasRatio = 12;
-		this.cellSize = this.canvasRatio - 2;
-		this.binded = {
-			onMouseMove: this.onMouseMove.bind(this),
-			onMouseDown: this.onMouseDown.bind(this),
-			onMouseUp: this.onMouseUp.bind(this),
-			onCanvasClick: this.onCanvasClick.bind(this)
-		};
+
 
 		automate.initWorkers(6);
-		automate.updateView = this.onUpdateView.bind(this);
+		automate.updateView = canvasService.onUpdateView.bind(canvasService);
 		this.useWorkers = true;
 		this.toggleStepLogic();
 
@@ -31,9 +30,9 @@
 			save: [2, 3]
 		};
 
-		automate.createMatrix(this.rowsCount, this.cellsCount, this.rule, true);
+		automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, true);
 
-		this.createCanvas();
+		canvasService.createCanvas();
 	};
 
 	AutomateCtrl.prototype.startLogic = function startLogic() {
@@ -69,13 +68,13 @@
 
 	AutomateCtrl.prototype.clearMatrix = function clearMatrix() {
 		this.stopLogic();
-		this.updateWholeCanvas(automate.createMatrix(this.rowsCount, this.cellsCount, this.rule, false));
+		canvasService.updateWholeCanvas(automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false));
 		automate.epoch = 0;
 	};
 
 	AutomateCtrl.prototype.randomMatrix = function randomMatrix() {
 		this.stopLogic();
-		this.updateWholeCanvas(automate.createMatrix(this.rowsCount, this.cellsCount, this.rule, true));
+		canvasService.updateWholeCanvas(automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, true));
 		automate.epoch = 0;
 	};
 
@@ -85,15 +84,8 @@
 
 		changeSizePromise = $timeout(function () {
 			this.stopLogic();
-
-			this.cellSize = this.canvasRatio - 2;
-			automate.createMatrix(this.rowsCount, this.cellsCount, this.rule, false);
-
-			this.canvas.removeEventListener('click', this.binded.onCanvasClick);
-			document.removeEventListener('mousedown', this.binded.onMouseDown);
-			document.removeEventListener('mouseup', this.binded.onMouseUp);
-
-			this.createCanvas();
+			automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false);
+			canvasService.changeSize();
 		}.bind(this), 500);
 	};
 
@@ -107,68 +99,7 @@
 		}.bind(this), this.timeoutMs);
 	};
 
-	AutomateCtrl.prototype.createCanvas = function createCanvas() {
-		this.canvas = document.querySelector('.automate-canvas');
-		this.canvas.width = this.cellsCount * this.canvasRatio;
-		this.canvas.height = this.rowsCount * this.canvasRatio;
-		this.ctx = this.canvas.getContext('2d');
-		this.ctx.strokeStyle = '#efefef';
-		this.updateWholeCanvas(automate.statesView);
-
-		this.canvas.addEventListener('click', this.binded.onCanvasClick);
-		document.addEventListener('mousedown', this.binded.onMouseDown);
-		document.addEventListener('mouseup', this.binded.onMouseUp);
-	};
-
-	AutomateCtrl.prototype.updateWholeCanvas = function updateWholeCanvas(data) {
-		console.time('updateWholeCanvas');
-		var i = 0,
-			rowIndex = 0,
-			cellIndex = 0;
-		while (i < data.length) {
-			//draw cell borders
-			this.ctx.strokeRect(cellIndex * this.canvasRatio, rowIndex * this.canvasRatio, this.canvasRatio, this.canvasRatio);
-			//fill cells with color
-			this.updateCanvasCell(data[i], cellIndex, rowIndex);
-			i++;
-			cellIndex = i % this.cellsCount;
-			if (cellIndex === 0) {
-				rowIndex++;
-			}
-		}
-		console.timeEnd('updateWholeCanvas');
-	};
-
-	AutomateCtrl.prototype.onUpdateView = function onUpdateView(value, index) {
-		this.updateCanvasCell(value, index % this.cellsCount, Math.floor(index / this.cellsCount));
-	};
-
-	AutomateCtrl.prototype.updateCanvasCell = function updateCanvasCellAutomateCtrl(value, x, y) {
-		this.ctx.fillStyle = value ? '#7eeafe' : '#FFFFFF';
-		this.ctx.fillRect(x * this.canvasRatio + 1, y * this.canvasRatio + 1, this.cellSize, this.cellSize);
-	};
-
-	AutomateCtrl.prototype.onCanvasClick = function onCanvasClick(event, write) {
-		var rowsIndex = Math.floor(event.layerY / this.canvasRatio),
-			cellsIndex = Math.floor(event.layerX / this.canvasRatio),
-			index = rowsIndex * this.cellsCount + cellsIndex,
-			cell = automate.statesView[index];
-		automate.statesView[index] = cell = write ? 1 : (cell === 1 ? 0 : 1);
-		this.updateCanvasCell(cell, cellsIndex, rowsIndex);
-	};
-
-	AutomateCtrl.prototype.onMouseMove = function onMouseMove(event) {
-		this.onCanvasClick(event, true);
-	};
-
-	AutomateCtrl.prototype.onMouseDown = function onMouseDown() {
-		this.canvas.addEventListener('mousemove', this.binded.onMouseMove);
-	};
-	AutomateCtrl.prototype.onMouseUp = function onMouseUp() {
-		this.canvas.removeEventListener('mousemove', this.binded.onMouseMove);
-	};
-
-	AutomateCtrl.$inject = ['$timeout'];
+	AutomateCtrl.$inject = ['$timeout', 'canvasService'];
 
 	angular.module('app').controller('AutomateCtrl', AutomateCtrl);
 })();

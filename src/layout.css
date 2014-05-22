@@ -22,6 +22,7 @@ content {
     text-align: center;
     border-right: 1px solid #7eeafe;
     width: 250px;
+    position: relative;
 }
 
 .form-control__number {

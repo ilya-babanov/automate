@@ -1,18 +1,33 @@
+.presets-container {
+    position: relative;
+}
+
+.animate-container {
+    position: relative;
+}
+
 .presets-list {
-    padding: 10px;
+    padding: 10px 10px 10px 25px;
     text-align: left;
+    position: absolute;
+}
+
+.btn-default__presets {
+    margin-bottom: 4px;
 }
 
 .presets-list.ng-hide-remove,
 .presets-list.ng-hide-add {
-    transition: all 10.55s ease;
+    transition: all 0.20s ease;
     display: block!important;
 }
 .presets-list.ng-hide-add.ng-hide-add-active,
 .presets-list.ng-hide-remove {
     opacity: 0;
+    top: 100px
 }
 .presets-list.ng-hide-add,
 .presets-list.ng-hide-remove.ng-hide-remove-active{
     opacity: 1;
+    top: 0;
 }

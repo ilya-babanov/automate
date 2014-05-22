@@ -46,30 +46,31 @@
                 </p>
                 <p>
                 Rows: <input class="form-control form-control__number navbar__input" type="number"
-                ng-model="ctrl.rowsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                ng-model="ctrl.canvasData.rowsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
                 </p>
                 <p>
                 Columns: <input class="form-control form-control__number navbar__input" type="number"
-                ng-model="ctrl.cellsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                ng-model="ctrl.canvasData.cellsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
                 </p>
                 <p>
                 Size: <input class="form-control form-control__number navbar__input" type="number"
-                ng-model="ctrl.canvasRatio" ng-change="ctrl.changeSize()" step="1" min="1"/>
+                ng-model="ctrl.canvasData.canvasRatio" ng-change="ctrl.changeSize()" step="1" min="1"/>
                 </p>
             </div>
         </div>
         
-        <div ng-controller="PresetsCtrl as presetsCtrl">
+        <div class="presets-container" ng-controller="PresetsCtrl as presetsCtrl">
             <button class="btn btn-info" ng-click="presetsCtrl.showPresets = !presetsCtrl.showPresets">
                 {{ presetsCtrl.showPresets ? "Hide " : "Show " }} presets
             </button>
-            <div class="presets-list" ng-hide="!presetsCtrl.showPresets">
-                <p>Drug and drop one of the links to canvas</p>
-                <ul>
-                    <li ng-repeat="preset in presetsCtrl.presets">
-                        <a href="">{{preset.name}}</a>
-                    </li>
-                </ul>
+            <div class="animate-container">
+                <div class="presets-list" ng-hide="!presetsCtrl.showPresets">
+                    
+                    <button class="btn btn-default btn-default__presets" ng-repeat="preset in presetsCtrl.presets"
+                            ng-click="presetsCtrl.currentPattern = presetsCtrl.presets[$index]">
+                        {{preset.name}}
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -87,8 +88,10 @@
 <script type="text/javascript" src="src/app.js"></script>
 <script type="text/javascript" src="src/utils.js"></script>
 <script type="text/javascript" src="src/automate.js"></script>
+<script type="text/javascript" src="src/canvasData.js"></script>
+<script type="text/javascript" src="src/canvasService.js"></script>
 <script type="text/javascript" src="src/automateCtrl.js"></script>
-<script type="text/javascript" src="src/presetsConfig.js"></script>
+<script type="text/javascript" src="src/presetsData.js"></script>
 <script type="text/javascript" src="src/presetsCtrl.js"></script>
 </body>
 </html>
