@@ -9,8 +9,6 @@
 			onMouseUp: this.onMouseUp.bind(this),
 			onCanvasClick: this.onCanvasClick.bind(this)
 		};
-		
-		console.log("11111111: ", 11111111);
 	}
 
 	CanvasService.prototype.createCanvas = function createCanvas() {
@@ -59,7 +57,6 @@
 	};
 
 	CanvasService.prototype.updateCanvasCell = function updateCanvasCellAutomateCtrl(value, x, y) {
-		console.log("value, x, y: ", value, x, y);
 		this.ctx.fillStyle = value ? '#7eeafe' : '#FFFFFF';
 		this.ctx.fillRect(x * canvasData.canvasRatio + 1, y * canvasData.canvasRatio + 1, canvasData.cellSize, canvasData.cellSize);
 	};

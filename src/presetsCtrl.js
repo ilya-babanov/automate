@@ -7,28 +7,36 @@
 		canvasService = canvasServiceObject;
 		canvasData = canvasService.canvasData;
 		
-		this.showPresets = false;
-		this.currentPattern = null;
+		this.showPresets = true;
+		this.currentIndex = 0;
 		
 		canvasData.canvas.addEventListener('click', this.onCanvasClick.bind(this))
 	};
 
 	PresetsCtrl.prototype.onCanvasClick = function onCanvasClick(event) {
-		if (!this.currentPattern) {
+		var currentPattern = this.presets[this.currentIndex];
+		if (!this.currentIndex > 0 || !currentPattern) {
 			return;
 		}
+
 		event.stopPropagation();
 		var rowsIndex = Math.floor(event.layerY / canvasData.canvasRatio),
 			cellsIndex = Math.floor(event.layerX / canvasData.canvasRatio),
+			patternCells = currentPattern.cells,
+			patternIndex = 0,
 			index = rowsIndex * canvasData.cellsCount + cellsIndex;
-		console.log("index: ", index);
-		console.log("this.currentPattern.array: ", this.currentPattern.array);
-		this.currentPattern.array.forEach(function (value) {
+
+		currentPattern.array.forEach(function (value) {
 			automate.statesView[index] = value;
 			canvasService.updateCanvasCell(value, cellsIndex, rowsIndex);
 			index++;
-			cellsIndex = ++cellsIndex % canvasData.cellsCount;
-			rowsIndex = ++rowsIndex % canvasData.rowsCount;
+			patternIndex++;
+			if (patternIndex > patternCells-1) {
+				patternIndex = 0;
+				index += canvasData.cellsCount - patternCells;
+				rowsIndex++;
+			}
+			cellsIndex = index % canvasData.cellsCount;
 		});
 	};
 

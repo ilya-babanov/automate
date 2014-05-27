@@ -12,14 +12,13 @@
 		this.automate = automate;
 		canvasService = canvasServiceObject;
 		
-		canvasData.rowsCount = 20;
-		canvasData.cellsCount = 40;
-		canvasData.canvasRatio = 22;
+		canvasData.rowsCount = 90;
+		canvasData.cellsCount = 110;
+		canvasData.canvasRatio = 10;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
+
+		this.showSettings = true;
 		
-
-
-
 		automate.initWorkers(6);
 		automate.updateView = canvasService.onUpdateView.bind(canvasService);
 		this.useWorkers = true;
@@ -30,7 +29,7 @@
 			save: [2, 3]
 		};
 
-		automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, true);
+		automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false);
 
 		canvasService.createCanvas();
 	};
@@ -92,9 +91,7 @@
 	AutomateCtrl.prototype.run = function run() {
 		runTimeoutPromise = $timeout(function () {
 			this.step().then(function () {
-				if (!automate.stopped) {
-					this.run();
-				}
+				if (!automate.stopped) { this.run(); }
 			}.bind(this));
 		}.bind(this), this.timeoutMs);
 	};
