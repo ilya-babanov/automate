@@ -1,6 +1,6 @@
 /* global fnToWorker */
 
-var automate = {
+window.automate = {
 	epoch: 0,
 	stopped: true,
 	
