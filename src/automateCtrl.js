@@ -1,3 +1,5 @@
+/* global automate, angular */
+
 (function () {
 	var $timeout,
 		runTimeoutPromise,
@@ -19,7 +21,7 @@
 
 		this.showSettings = true;
 		
-		automate.initWorkers(6);
+		automate.initWorkers(4);
 		automate.updateView = canvasService.onUpdateView.bind(canvasService);
 		this.useWorkers = true;
 		this.toggleStepLogic();

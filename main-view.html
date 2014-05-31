@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="src/layout.css"/>
     <link rel="stylesheet" href="src/sidebar.css"/>
     <link rel="stylesheet" href="src/presets.css"/>
+    <link rel="stylesheet" href="src/settings.css"/>
 </head>
 
 <body ng-app="app" ng-controller="AutomateCtrl as ctrl">
 
 
 <div class="content">
-    
+
     <div class="side-bar">
-        
+
         <div class="navbar-form">
             <p>
                 <button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
@@ -32,47 +33,36 @@
             <p> 
                 Epoch: {{ctrl.automate.epoch}}
             </p>
-            
+
             <hr/>
-            
-            
+
+
             <div class="settings-container">
                 <button class="btn btn-info btn-xs" ng-click="ctrl.showSettings = !ctrl.showSettings">
                     {{ ctrl.showSettings ? "Hide " : "Show " }} settings
                 </button>
-                
+
                 <div class="animate-container" ng-show="ctrl.showSettings">
-   
+
                     <div class="navbar__sub-bar">
-                        <p>
-                            Speed (ms): <input class="form-control form-control__number navbar__input" type="number"
-                                               ng-model="ctrl.timeoutMs" step="10" min="10"/>
-                        </p>
-                        <p>
-                            Rows: <input class="form-control form-control__number navbar__input" type="number"
-                                         ng-model="ctrl.canvasData.rowsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
-                        </p>
-                        <p>
-                            Columns: <input class="form-control form-control__number navbar__input" type="number"
-                                            ng-model="ctrl.canvasData.cellsCount" ng-change="ctrl.changeSize()" step="1" min="1"/>
-                        </p>
-                        <p>
-                            Size: <input class="form-control form-control__number navbar__input" type="number"
-                                         ng-model="ctrl.canvasData.canvasRatio" ng-change="ctrl.changeSize()" step="1" min="1"/>
-                        </p>
+                        <p> Speed (ms): <input class="form-control form-control__number navbar__input" type="number"
+                                               ng-model="ctrl.timeoutMs" step="10" min="10"/> </p>
+                        <p> Rows: <input class="form-control form-control__number navbar__input" type="number"
+                                         ng-model="ctrl.canvasData.rowsCount" ng-change="ctrl.changeSize()" step="1" min="1"/> </p>
+                        <p> Columns: <input class="form-control form-control__number navbar__input" type="number"
+                                            ng-model="ctrl.canvasData.cellsCount" ng-change="ctrl.changeSize()" step="1" min="1"/> </p>
+                        <p> Size: <input class="form-control form-control__number navbar__input" type="number"
+                                         ng-model="ctrl.canvasData.canvasRatio" ng-change="ctrl.changeSize()" step="1" min="1"/> </p>
                     </div>
                     <p class="navbar__checkbox">
-                        <label>
-                            <input type="checkbox" ng-model="ctrl.useWorkers"
+                        <label> <input type="checkbox" ng-model="ctrl.useWorkers"
                                    ng-change="ctrl.toggleStepLogic()" id="webworkersid"/>
-                            Web Workers
-                        </label>
-                    </p>
+                            Web Workers </label> </p>
                 </div>
             </div>
-            
+
         </div>
-        
+
         <div class="presets-container" ng-controller="PresetsCtrl as presetsCtrl">
             <hr/>
             <button class="btn btn-info btn-xs" ng-click="presetsCtrl.showPresets = !presetsCtrl.showPresets">
@@ -80,21 +70,19 @@
             </button>
             <div class="animate-container" ng-hide="!presetsCtrl.showPresets">
                 <div class="presets-list">
-                    
                     <button class="btn btn-default btn-default__presets" 
                             ng-class="{'active': presetsCtrl.currentIndex == $index}"
                             ng-repeat="preset in presetsCtrl.presets"
                             ng-click="presetsCtrl.currentIndex = $index">
                         {{preset.name}}
                     </button>
-                    
                 </div>
             </div>
             <hr/>
         </div>
-        
+
     </div>
-    
+
     <div class="container-matrix">
         <canvas class="automate-canvas" width="1800" height="1800"></canvas>
     </div>

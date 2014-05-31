@@ -1,3 +1,5 @@
+/* global fnToWorker */
+
 var automate = {
 	epoch: 0,
 	stopped: true,
@@ -21,7 +23,7 @@ var automate = {
 	stepPlain: function () {
 		console.time('plain');
 		this.epoch++;
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			var result = this.process({
 				statesBuffer: this.statesBuffer, 
 				start: 0, 
@@ -40,9 +42,9 @@ var automate = {
 		this.epoch++;
 		return new Promise(function (resolve) {
 			var part = Math.round(this.height/this.workersLength),
-				startPart = 0, 
-				endPart = part + 1, 
-				startIndex = 0, 
+				startPart = 0,
+				endPart = part + 1,
+				startIndex = 0,
 				endIndex = part;
 			for (var i = 0; i < this.workersLength; i++) {
 				var worker = this.workers[i],
@@ -164,6 +166,10 @@ var automate = {
 		console.timeEnd('updateViewAndMatrix');
 	},
 
-	// Implements in view
-	updateView: function (value, index) {}
+	/**
+	 * Updates view, implements in controller
+	 * @param {number} value
+	 * @param {number} index
+	 */
+	updateView: function () {}
 };

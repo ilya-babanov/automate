@@ -1,6 +1,5 @@
 (function () {
-	var presets,
-		canvasData,
+	var canvasData,
 		canvasService;
 	var PresetsCtrl = function ($timeout, presetsValue, canvasServiceObject) {
 		this.presets = presets = presetsValue;
@@ -43,4 +42,4 @@
 	PresetsCtrl.$inject = ['$timeout', 'presets', 'canvasService'];
 
 	angular.module('app').controller('PresetsCtrl', PresetsCtrl);
-})();
+}());
