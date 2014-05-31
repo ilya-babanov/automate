@@ -16,6 +16,17 @@
 <div class="content">
 
     <div class="side-bar">
+		<br />
+		<div>
+			<p>Mode:</p>
+			<button class="btn btn-default"
+				ng-class="{'active': ctrl.mode == 0}"
+				ng-click="ctrl.mode=0">Life</button>
+			<button class="btn btn-default"
+				ng-class="{'active': ctrl.mode == 1}"
+				ng-click="ctrl.mode=1">Generations</button>
+		</div>
+		<hr />
 
         <div class="navbar-form">
             <p>
@@ -63,7 +74,12 @@
 
         </div>
 
-        <div class="presets-container" ng-controller="PresetsCtrl as presetsCtrl">
+
+
+
+        <div class="presets-container animate-container"
+			ng-show="ctrl.mode == 0"
+			ng-controller="PresetsCtrl as presetsCtrl">
             <hr/>
             <button class="btn btn-info btn-xs" ng-click="presetsCtrl.showPresets = !presetsCtrl.showPresets">
                 {{ presetsCtrl.showPresets ? "Hide " : "Show " }} presets

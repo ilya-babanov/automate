@@ -9,6 +9,10 @@
 	
 	var AutomateCtrl = function ($timeoutInstance, canvasServiceObject) {
 		$timeout = $timeoutInstance;
+
+		// 0 - life, 1 - generations
+		this.mode = 0;
+
 		this.timeoutMs = 10;
 		this.canvasData = canvasData = canvasServiceObject.canvasData;
 		this.automate = automate;
