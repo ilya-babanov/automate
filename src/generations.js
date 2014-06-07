@@ -31,7 +31,7 @@ window.generations = {
 	},
 
 	process: function (data) {
-		var statesView = new Uint8Array(data.statesBuffer),
+		var statesView = new Uint16Array(data.statesBuffer),
 			actor = null, changedCells = [],
 			availableCells, index, currentCell,
 			destinationIndex, topRowIndex, bottomRowIndex;
@@ -110,8 +110,8 @@ window.generations = {
 		this.width = cellsCount;
 
 		// create world with random objects (0 - empty space, 1 - object)
-		this.statesBuffer = new ArrayBuffer(this.length);
-		this.statesView = new Uint8Array(this.statesBuffer);
+		this.statesBuffer = new ArrayBuffer(this.length*2);
+		this.statesView = new Uint16Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
 			this.statesView[i] = random ? Math.round(Math.random()) : 1;
 		}

@@ -13,14 +13,14 @@
 		// 0 - life, 1 - generations
 		this.mode = 1;
 
-		this.actorsCount = 100;
+		this.actorsCount = 200;
 		this.timeoutMs = 10;
 		this.canvasData = canvasData = canvasServiceObject.canvasData;
 		this.automate = life;
 		canvasService = canvasServiceObject;
 		canvasService.automate = this.automate;
 		canvasData.rowsCount = 60;
-		canvasData.cellsCount = 60;
+		canvasData.cellsCount = 90;
 		canvasData.canvasRatio = 10;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
