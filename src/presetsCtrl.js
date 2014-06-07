@@ -1,20 +1,21 @@
+/* global life, angular */
 (function () {
 	var canvasData,
 		canvasService;
 	var PresetsCtrl = function ($timeout, presetsValue, canvasServiceObject) {
-		this.presets = presets = presetsValue;
+		this.presets = presetsValue;
 		canvasService = canvasServiceObject;
 		canvasData = canvasService.canvasData;
 		
 		this.showPresets = true;
 		this.currentIndex = 0;
 		
-		canvasData.canvas.addEventListener('click', this.onCanvasClick.bind(this))
+		canvasData.canvas.addEventListener('click', this.onCanvasClick.bind(this));
 	};
 
 	PresetsCtrl.prototype.onCanvasClick = function onCanvasClick(event) {
 		var currentPattern = this.presets[this.currentIndex];
-		if (!this.currentIndex > 0 || !currentPattern) {
+		if (!currentPattern) {
 			return;
 		}
 
@@ -26,7 +27,7 @@
 			index = rowsIndex * canvasData.cellsCount + cellsIndex;
 
 		currentPattern.array.forEach(function (value) {
-			automate.statesView[index] = value;
+			life.statesView[index] = value;
 			canvasService.updateCanvasCell(value, cellsIndex, rowsIndex);
 			index++;
 			patternIndex++;

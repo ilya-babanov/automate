@@ -18,14 +18,14 @@
     <div class="side-bar">
 		<br />
 		<div>
-			<p>Mode:</p>
 			<button class="btn btn-default"
 				ng-class="{'active': ctrl.mode == 0}"
-				ng-click="ctrl.mode=0">Life</button>
+				ng-click="ctrl.mode=0; ctrl.toggleModeLogic()">Life</button>
 			<button class="btn btn-default"
 				ng-class="{'active': ctrl.mode == 1}"
-				ng-click="ctrl.mode=1">Generations</button>
+				ng-click="ctrl.mode=1; ctrl.toggleModeLogic()">Generations</button>
 		</div>
+
 		<hr />
 
         <div class="navbar-form">
@@ -110,7 +110,8 @@
 <script type="text/javascript" src="libs/angular-animate.min.js"></script>
 <script type="text/javascript" src="src/app.js"></script>
 <script type="text/javascript" src="src/utils.js"></script>
-<script type="text/javascript" src="src/automate.js"></script>
+<script type="text/javascript" src="src/life.js"></script>
+<script type="text/javascript" src="src/generations.js"></script>
 <script type="text/javascript" src="src/canvasData.js"></script>
 <script type="text/javascript" src="src/canvasService.js"></script>
 <script type="text/javascript" src="src/automateCtrl.js"></script>

@@ -1,6 +1,5 @@
 /* global fnToWorker */
-
-window.automate = {
+window.life = {
 	epoch: 0,
 	stopped: true,
 	
@@ -134,7 +133,7 @@ window.automate = {
 		return {changesBuffer: new Uint32Array(changedCells).buffer};
 	},
 
-	createMatrix: function createMatrixAutomateCtrl(rowsCount, cellsCount, rule, random) {
+	createMatrix: function createMatrixAutomateCtrl(rowsCount, cellsCount, random) {
 		this.length = rowsCount*cellsCount;
 		this.height = rowsCount;
 		this.width = cellsCount;

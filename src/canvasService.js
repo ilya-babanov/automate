@@ -2,7 +2,7 @@
 	var canvasData;
 	function CanvasService(canvasDataObject) {
 		this.canvasData = canvasData = canvasDataObject;
-		
+		this.automate = {};//this parameter sets in controller
 		this.binded = {
 			onMouseMove: this.onMouseMove.bind(this),
 			onMouseDown: this.onMouseDown.bind(this),
@@ -17,7 +17,7 @@
 		canvasData.canvas.height = canvasData.rowsCount * canvasData.canvasRatio;
 		this.ctx = canvasData.canvas.getContext('2d');
 		this.ctx.strokeStyle = '#efefef';
-		this.updateWholeCanvas(automate.statesView);
+		this.updateWholeCanvas(this.automate.statesView);
 
 		canvasData.canvas.addEventListener('click', this.binded.onCanvasClick);
 		document.addEventListener('mousedown', this.binded.onMouseDown);
@@ -56,8 +56,28 @@
 		this.updateCanvasCell(value, index % canvasData.cellsCount, Math.floor(index / canvasData.cellsCount));
 	};
 
-	CanvasService.prototype.updateCanvasCell = function updateCanvasCellAutomateCtrl(value, x, y) {
-		this.ctx.fillStyle = value ? '#7eeafe' : '#FFFFFF';
+	CanvasService.prototype.lifeStyles = {
+		'0': '#7eeafe',
+		'1': '#ffffff'
+	};
+	CanvasService.prototype.updateCanvasCellLife = function updateCanvasCellAutomateCtrl(value, x, y) {
+		this.ctx.fillStyle = this.lifeStyles[value];
+		this.ctx.fillRect(x * canvasData.canvasRatio + 1, y * canvasData.canvasRatio + 1, canvasData.cellSize, canvasData.cellSize);
+	};
+
+	CanvasService.prototype.generationStyles = {
+		'0': '#7eeafe',
+		'1': '#ffffff',
+		'100': '#99ff33',
+		'101': '#cc6633'
+	};
+	CanvasService.prototype.updateCanvasCellGenerations = function updateCanvasCellAutomateCtrl(value, x, y) {
+		var actor = this.automate.actors[value];
+		if (actor) {
+			this.ctx.fillStyle = this.generationStyles[actor.type];
+		} else {
+			this.ctx.fillStyle = this.generationStyles[value];
+		}
 		this.ctx.fillRect(x * canvasData.canvasRatio + 1, y * canvasData.canvasRatio + 1, canvasData.cellSize, canvasData.cellSize);
 	};
 
@@ -65,8 +85,8 @@
 		var rowsIndex = Math.floor(event.layerY / canvasData.canvasRatio),
 			cellsIndex = Math.floor(event.layerX / canvasData.canvasRatio),
 			index = rowsIndex * canvasData.cellsCount + cellsIndex,
-			cell = automate.statesView[index];
-		automate.statesView[index] = cell = write ? 1 : (cell === 1 ? 0 : 1);
+			cell = this.automate.statesView[index];
+		this.automate.statesView[index] = cell = write ? 1 : (cell === 1 ? 0 : 1);
 		this.updateCanvasCell(cell, cellsIndex, rowsIndex);
 	};
 

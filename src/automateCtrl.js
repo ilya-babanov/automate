@@ -1,4 +1,4 @@
-/* global automate, angular */
+/* global life, angular, generations*/
 
 (function () {
 	var $timeout,
@@ -11,76 +11,85 @@
 		$timeout = $timeoutInstance;
 
 		// 0 - life, 1 - generations
-		this.mode = 0;
+		this.mode = 1;
 
+		this.actorsCount = 100;
 		this.timeoutMs = 10;
 		this.canvasData = canvasData = canvasServiceObject.canvasData;
-		this.automate = automate;
+		this.automate = life;
 		canvasService = canvasServiceObject;
-		
-		canvasData.rowsCount = 90;
-		canvasData.cellsCount = 110;
+		canvasService.automate = this.automate;
+		canvasData.rowsCount = 60;
+		canvasData.cellsCount = 60;
 		canvasData.canvasRatio = 10;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
 		this.showSettings = true;
 		
-		automate.initWorkers(4);
-		automate.updateView = canvasService.onUpdateView.bind(canvasService);
+		this.automate.initWorkers(4);
 		this.useWorkers = true;
 		this.toggleStepLogic();
+		this.toggleModeLogic();
 
-		this.rule = {
-			born: [3],
-			save: [2, 3]
-		};
-
-		automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false);
+		this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount);
 
 		canvasService.createCanvas();
 	};
 
 	AutomateCtrl.prototype.startLogic = function startLogic() {
 		$timeout.cancel(runTimeoutPromise);
-		automate.stopped = false;
+		this.automate.stopped = false;
 		this.step();
 		this.run();
 	};
 
-	AutomateCtrl.prototype.step = function step() {
+	AutomateCtrl.prototype.step = function step() { };
+
+	AutomateCtrl.prototype.toggleModeLogic = function toggleModeLogic() {
+		this.stopLogic();
+		if (this.mode === 0) {
+			this.automate = life;
+			canvasService.updateCanvasCell = canvasService.updateCanvasCellLife;
+		} else {
+			this.automate = generations;
+			canvasService.updateCanvasCell = canvasService.updateCanvasCellGenerations;
+		}
+		canvasService.automate = this.automate;
+		this.automate.updateView = canvasService.onUpdateView.bind(canvasService);
+		this.toggleStepLogic();
 	};
 
 	AutomateCtrl.prototype.toggleStepLogic = function toggleStepLogic() {
 		if (this.useWorkers) {
-			this.step = automate.stepWorkers.bind(automate);
+			this.step = this.automate.stepWorkers.bind(this.automate);
 		} else {
-			this.step = automate.stepPlain.bind(automate);
+			this.step = this.automate.stepPlain.bind(this.automate);
 		}
 	};
 
 	AutomateCtrl.prototype.stopLogic = function stopLogic() {
-		automate.stopped = true;
+		this.automate.stopped = true;
 		$timeout.cancel(runTimeoutPromise);
 	};
 
 	AutomateCtrl.prototype.processStep = function processStep() {
 		this.stopLogic();
-		automate.stopped = false;
+		this.automate.stopped = false;
 		this.step().then(function () {
-			automate.stopped = true;
+			this.automate.stopped = true;
 		}.bind(this));
 	};
 
 	AutomateCtrl.prototype.clearMatrix = function clearMatrix() {
 		this.stopLogic();
-		canvasService.updateWholeCanvas(automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false));
-		automate.epoch = 0;
+		canvasService.updateWholeCanvas(this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, false, this.actorsCount));
+		this.automate.epoch = 0;
 	};
 
 	AutomateCtrl.prototype.randomMatrix = function randomMatrix() {
 		this.stopLogic();
-		canvasService.updateWholeCanvas(automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, true));
-		automate.epoch = 0;
+		canvasService.updateWholeCanvas(this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount));
+		this.automate.epoch = 0;
 	};
 
 
@@ -89,7 +98,7 @@
 
 		changeSizePromise = $timeout(function () {
 			this.stopLogic();
-			automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, this.rule, false);
+			this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, false, this.actorsCount);
 			canvasService.changeSize();
 		}.bind(this), 500);
 	};
@@ -97,7 +106,7 @@
 	AutomateCtrl.prototype.run = function run() {
 		runTimeoutPromise = $timeout(function () {
 			this.step().then(function () {
-				if (!automate.stopped) { this.run(); }
+				if (!this.automate.stopped) { this.run(); }
 			}.bind(this));
 		}.bind(this), this.timeoutMs);
 	};
