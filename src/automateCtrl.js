@@ -29,7 +29,7 @@
 		this.automate.initWorkers(4);
 		this.useWorkers = true;
 		this.toggleStepLogic();
-		this.toggleModeLogic();
+		this.toggleModeLogic(true);
 
 		this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount);
 
@@ -45,7 +45,7 @@
 
 	AutomateCtrl.prototype.step = function step() { };
 
-	AutomateCtrl.prototype.toggleModeLogic = function toggleModeLogic() {
+	AutomateCtrl.prototype.toggleModeLogic = function toggleModeLogic(firstTime) {
 		this.stopLogic();
 		if (this.mode === 0) {
 			this.automate = life;
@@ -57,6 +57,9 @@
 		canvasService.automate = this.automate;
 		this.automate.updateView = canvasService.onUpdateView.bind(canvasService);
 		this.toggleStepLogic();
+		if (!firstTime) {
+			this.randomMatrix();
+		}
 	};
 
 	AutomateCtrl.prototype.toggleStepLogic = function toggleStepLogic() {
