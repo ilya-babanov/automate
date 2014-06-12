@@ -26,8 +26,14 @@
 			patternIndex = 0,
 			index = rowsIndex * canvasData.cellsCount + cellsIndex;
 
+		if (currentPattern.array.length === 1) {
+			canvasService.automate.statesView[index] = canvasService.automate.statesView[index] === 1 ? 0 : 1;
+			canvasService.updateCanvasCell(canvasService.automate.statesView[index], cellsIndex, rowsIndex);
+			return;
+		}
+
 		currentPattern.array.forEach(function (value) {
-			life.statesView[index] = value;
+			canvasService.automate.statesView[index] = value;
 			canvasService.updateCanvasCell(value, cellsIndex, rowsIndex);
 			index++;
 			patternIndex++;

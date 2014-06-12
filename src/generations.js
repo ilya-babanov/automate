@@ -1,3 +1,4 @@
+(function(){
 window.generations = {
 	epoch: 0,
 	stopped: true,
@@ -11,6 +12,28 @@ window.generations = {
 	statesView: null,
 
 	actors: {},
+	lastActorId: 0,
+
+	typeData: {
+		'100': {
+			dieAfter: 2,
+			birthFriends: 1,
+			birthRate: 0.9,
+			maxResource: 100,
+			childResource: 10,
+			availableCells: [1],
+			kill: []
+		},
+		'101': {
+			dieAfter: 1,
+			birthFriends: 1,
+			birthRate: 0.9,
+			maxResource: 220,
+			childResource: 50,
+			availableCells: [100, 1],
+			kill: [100]
+		}
+	},
 
 	stepPlain: function () {
 		console.time('plain');
@@ -19,6 +42,7 @@ window.generations = {
 			var result = this.process({
 				statesBuffer: this.statesBuffer, 
 				actors: this.actors,
+				typeData: this.typeData,
 				start: 0,
 				end: this.height,
 				width: this.width,
@@ -32,74 +56,73 @@ window.generations = {
 
 	process: function (data) {
 		var statesView = new Uint16Array(data.statesBuffer),
-			actor = null, changedCells = [],
-			availableCells, index, currentCell,
-			destinationIndex, topRowIndex, bottomRowIndex;
+			changedCells = [],
+			index, currentCell, currentActor;
 
 		for (var actorId in data.actors) {
-			actor = data.actors[actorId];
-			topRowIndex = actor.coordinate - data.width;
-			bottomRowIndex = actor.coordinate + data.width;
-			availableCells = [];
+			var actor = data.actors[actorId];
+			var topRowIndex = actor.coordinate - data.width;
+			var bottomRowIndex = actor.coordinate + data.width;
 
-			currentCell = statesView[topRowIndex-1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(topRowIndex-1);
-			}
-			currentCell = statesView[topRowIndex];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(topRowIndex);
-			}
-			currentCell = statesView[topRowIndex+1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(topRowIndex+1);
-			}
-			currentCell = statesView[actor.coordinate+1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(actor.coordinate+1);
-			}
-			currentCell = statesView[bottomRowIndex+1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(bottomRowIndex+1);
-			}
-			currentCell = statesView[bottomRowIndex];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(bottomRowIndex);
-			}
-			currentCell = statesView[bottomRowIndex-1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(bottomRowIndex-1);
-			}
-			currentCell = statesView[actor.coordinate-1];
-			if (currentCell !== 0 && currentCell !== undefined) {
-				availableCells.push(actor.coordinate-1);
+			if (actor.resource === 0) {
+				// erase value on old actor coordinate
+				changedCells.push(1);
+				changedCells.push(actor.coordinate);
+				delete data.actors[actorId];
+				continue;
 			}
 
-			//console.log('availableCells', availableCells);
-			// select direction
-			destinationIndex = availableCells[Math.floor(Math.random()*(availableCells.length))];
-			switch (actor.type) {
-				case 101:
-					for (var i = 1, l = availableCells.length; i < l; i ++) {
-						index = availableCells[i];
-						currentCell = statesView[index];
-						if (data.actors[currentCell] && data.actors[currentCell].type === 100) {
-							destinationIndex = index;
-							delete data.actors[currentCell];
-						}
+			actor.resource--;
+
+			var typeData = data.typeData[actor.type];
+			var environment = [topRowIndex-1, topRowIndex, topRowIndex+1, actor.coordinate+1, bottomRowIndex+1, bottomRowIndex, bottomRowIndex-1, actor.coordinate-1];
+			var availableCells = [];
+			var destinationIndex = -1;
+			var friends = 0;
+			for (var i in environment) {
+				index = environment[i];
+				currentCell = statesView[index];
+				if (typeData.availableCells.indexOf(currentCell) !== -1) {
+					availableCells.push(index);
+				}
+				currentActor = data.actors[currentCell];
+				if (currentActor) {
+					if (actor.resource < typeData.maxResource && typeData.kill.indexOf(currentActor.type) !== -1) {
+						destinationIndex = index;
+						actor.resource = typeData.maxResource;
+						delete data.actors[currentCell];
+					} 
+					if (currentActor.type === actor.type) {
+						friends++;
 					}
-					break;
+				}
 			}
+
+			if (destinationIndex === -1) {
+				// select random direction
+				destinationIndex = availableCells[Math.floor(Math.random()*(availableCells.length))];			
+			}
+
+			if (friends === typeData.birthFriends && Math.random() > typeData.birthRate) {
+				actor.resource = typeData.maxResource;
+				data.actors[this.lastActorId++] = new Actor(actor.coordinate, actor.type, typeData.childResource);
+			} else if (friends > typeData.dieAfter) {
+				destinationIndex = -1;
+				delete data.actors[currentCell];
+			}
+
 			// erase value on old actor coordinate
 			changedCells.push(1);
 			changedCells.push(actor.coordinate);
 
 			// move
-			changedCells.push(actorId);
-			changedCells.push(destinationIndex);
+			if (destinationIndex !== -1) {
+				changedCells.push(actorId);
+				changedCells.push(destinationIndex);
+				// update actor's coordinate
+				actor.coordinate = destinationIndex;
+			}
 
-			// update actor's coordinate
-			actor.coordinate = destinationIndex;
 		}
 		return {changesBuffer: new Uint32Array(changedCells).buffer};
 	},
@@ -113,26 +136,24 @@ window.generations = {
 		this.statesBuffer = new ArrayBuffer(this.length*2);
 		this.statesView = new Uint16Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
-			this.statesView[i] = random ? Math.round(Math.random()) : 1;
+			this.statesView[i] = random ? Math.floor(0.94 + Math.random()) : 1;
 		}
 
+		this.actors = {};
+
 		if (random && actorsCount) {
-			i = 100;
+			this.lastActorId = 100;
 			actorsCount+=100;
 			// create live actors
-			while (i < actorsCount) {
-				var actor = {
-					//id: i,
-					type:  random ? 100 + Math.round(Math.random()*0.75) : 100,
-					resources: 100,
-					coordinate: 0
-				};
-				this.actors[i] = actor;
-				i++;
+			while (this.lastActorId < actorsCount) {
+				var type  = random ? Actor.HAMSTER + Math.round(Math.random()*0.54) : Actor.HAMSTER;
+				var resource = type === Actor.HUNTER ? 200 : 100;
+				this.actors[this.lastActorId] = new Actor(0, type, resource);
+				this.lastActorId++;
 			}
 			// put actors to the world randomly
 			var placedActorId = 100; i = 100;
-			while(placedActorId !== actorsCount) {
+			while (placedActorId !== actorsCount) {
 				if (this.statesView[i] === 0 && Math.random() < 0.06) {
 					// put actor in a world writing his id into the states view
 					this.statesView[i] = placedActorId;
@@ -178,6 +199,14 @@ window.generations = {
 	 */
 	updateView: function () {}
 };
-
 // temporary (temporary, heh!)  make stepWorkers similar to stepPlain
 window.generations.stepWorkers = window.generations.stepPlain;
+
+var Actor = function (coordinate, type, resource) {
+	this.coordinate = coordinate;
+	this.type = type;
+	this.resource = resource || 90;
+};
+Actor.HUNTER = 101;
+Actor.HAMSTER = 100;
+})();

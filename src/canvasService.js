@@ -19,14 +19,14 @@
 		this.ctx.strokeStyle = '#efefef';
 		this.updateWholeCanvas(this.automate.statesView);
 
-		canvasData.canvas.addEventListener('click', this.binded.onCanvasClick);
+		//canvasData.canvas.addEventListener('click', this.binded.onCanvasClick);
 		document.addEventListener('mousedown', this.binded.onMouseDown);
 		document.addEventListener('mouseup', this.binded.onMouseUp);
 	};
 
 	CanvasService.prototype.changeSize = function changeSize() {
 		canvasData.cellSize = canvasData.canvasRatio - 2;
-		canvasData.canvas.removeEventListener('click', this.binded.onCanvasClick);
+		//canvasData.canvas.removeEventListener('click', this.binded.onCanvasClick);
 		document.removeEventListener('mousedown', this.binded.onMouseDown);
 		document.removeEventListener('mouseup', this.binded.onMouseUp);
 
