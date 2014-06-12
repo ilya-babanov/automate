@@ -18,7 +18,7 @@ window.generations = {
 		'100': {
 			dieAfter: 2,
 			birthFriends: 1,
-			birthRate: 0.9,
+			birthRate: 0.88,
 			maxResource: 100,
 			childResource: 10,
 			availableCells: [1],
@@ -108,7 +108,7 @@ window.generations = {
 				data.actors[this.lastActorId++] = new Actor(actor.coordinate, actor.type, typeData.childResource);
 			} else if (friends > typeData.dieAfter) {
 				destinationIndex = -1;
-				delete data.actors[currentCell];
+				delete data.actors[actorId];
 			}
 
 			// erase value on old actor coordinate
