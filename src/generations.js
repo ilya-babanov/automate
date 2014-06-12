@@ -18,9 +18,9 @@ window.generations = {
 		'100': {
 			dieAfter: 2,
 			birthFriends: 1,
-			birthRate: 0.88,
+			birthRate: 0.86,
 			maxResource: 100,
-			childResource: 10,
+			childResource: 8,
 			availableCells: [1],
 			kill: []
 		},
@@ -136,7 +136,7 @@ window.generations = {
 		this.statesBuffer = new ArrayBuffer(this.length*2);
 		this.statesView = new Uint16Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
-			this.statesView[i] = random ? Math.floor(0.94 + Math.random()) : 1;
+			this.statesView[i] = random ? Math.floor(0.8 + Math.random()) : 1;
 		}
 
 		this.actors = {};
@@ -146,7 +146,7 @@ window.generations = {
 			actorsCount+=100;
 			// create live actors
 			while (this.lastActorId < actorsCount) {
-				var type  = random ? Actor.HAMSTER + Math.round(Math.random()*0.54) : Actor.HAMSTER;
+				var type  = random ? Actor.HAMSTER + Math.round(Math.random()*0.57) : Actor.HAMSTER;
 				var resource = type === Actor.HUNTER ? 200 : 100;
 				this.actors[this.lastActorId] = new Actor(0, type, resource);
 				this.lastActorId++;
