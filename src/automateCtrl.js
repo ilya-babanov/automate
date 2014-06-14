@@ -13,15 +13,15 @@
 		// 0 - life, 1 - generations
 		this.mode = 1;
 
-		this.actorsCount = 200;
+		this.actorsCount = 500;
 		this.timeoutMs = 10;
 		this.canvasData = canvasData = canvasServiceObject.canvasData;
 		this.automate = life;
 		canvasService = canvasServiceObject;
 		canvasService.automate = this.automate;
-		canvasData.rowsCount = 92;
-		canvasData.cellsCount = 133;
-		canvasData.canvasRatio = 10;
+		canvasData.rowsCount = 120;
+		canvasData.cellsCount = 180;
+		canvasData.canvasRatio = 7;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
 		this.showSettings = true;
@@ -31,7 +31,8 @@
 		this.toggleStepLogic();
 		this.toggleModeLogic(true);
 
-		this.automate.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount);
+		life.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount);
+		generations.createMatrix(canvasData.rowsCount, canvasData.cellsCount, true, this.actorsCount);
 
 		canvasService.createCanvas();
 	};
@@ -58,7 +59,7 @@
 		this.automate.updateView = canvasService.onUpdateView.bind(canvasService);
 		this.toggleStepLogic();
 		if (!firstTime) {
-			this.randomMatrix();
+			canvasService.updateWholeCanvas(this.automate.statesView);
 		}
 	};
 

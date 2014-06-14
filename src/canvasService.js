@@ -67,14 +67,12 @@
 
 	CanvasService.prototype.generationStyles = {
 		'0': '#7eeafe',
-		'1': '#ffffff',
-		'100': '#99ff33',
-		'101': '#cc6633'
+		'1': '#ffffff'
 	};
 	CanvasService.prototype.updateCanvasCellGenerations = function updateCanvasCellAutomateCtrl(value, x, y) {
 		var actor = this.automate.actors[value];
 		if (actor) {
-			this.ctx.fillStyle = this.generationStyles[actor.type];
+			this.ctx.fillStyle = generations.typeData[actor.type].color;
 		} else {
 			this.ctx.fillStyle = this.generationStyles[value];
 		}

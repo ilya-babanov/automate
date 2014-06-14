@@ -1,6 +1,6 @@
 html,
 body,
-content {
+.content {
     position: relative;
     width: 100%;
     height: 100%;
@@ -9,8 +9,16 @@ content {
 	font-size: 11px;
 }
 
-.btn {
-	font-size: 12px;
+.top-bar {
+	font-size: 1jpx;
+	width: 100vw;
+	height: 60px;
+	position: fixed;
+	background-color: white;
+	overflow: hidden;
+	z-index: 100;
+	border-bottom: 1px solid #7eeafe;
+	padding: 14px;
 }
 
 .content {
@@ -21,6 +29,7 @@ content {
     align-items: stretch;
     align-content: stretch;
     height: 100%;
+	padding-top: 60px;
 }
 
 .container-matrix {

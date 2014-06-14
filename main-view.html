@@ -7,47 +7,34 @@
     <link rel="stylesheet" href="src/layout.css"/>
     <link rel="stylesheet" href="src/sidebar.css"/>
     <link rel="stylesheet" href="src/presets.css"/>
-    <link rel="stylesheet" href="src/settings.css"/>
 </head>
 
 <body ng-app="app" ng-controller="AutomateCtrl as ctrl">
 
+<div class="top-bar">
+	<button class="btn btn-default"
+		ng-class="{'active': ctrl.mode == 0}"
+		ng-click="ctrl.mode=0; ctrl.toggleModeLogic()">Life</button>
+	<button class="btn btn-default"
+		ng-class="{'active': ctrl.mode == 1}"
+		ng-click="ctrl.mode=1; ctrl.toggleModeLogic()">Generations</button>
+	&nbsp;&nbsp;
+	<button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
+	<button class="btn btn-success" ng-click="ctrl.processStep()">One step</button>
+	&nbsp;&nbsp;
+	<button class="btn btn-info" ng-click="ctrl.randomMatrix()">Random</button>
+	<button class="btn btn-info" ng-click="ctrl.clearMatrix()">Clear</button>
+	&nbsp;&nbsp;
+	<button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
+	&nbsp;&nbsp;
+	Epoch: {{ctrl.automate.epoch}}
+</div>
 
 <div class="content">
 
     <div class="side-bar">
-		<br />
-		<div>
-			<button class="btn btn-default"
-				ng-class="{'active': ctrl.mode == 0}"
-				ng-click="ctrl.mode=0; ctrl.toggleModeLogic()">Life</button>
-			<button class="btn btn-default"
-				ng-class="{'active': ctrl.mode == 1}"
-				ng-click="ctrl.mode=1; ctrl.toggleModeLogic()">Generations</button>
-		</div>
-
-		<hr />
 
         <div class="navbar-form">
-            <p>
-                <button class="btn btn-success" ng-click="ctrl.startLogic()">Start</button>
-                <button class="btn btn-success" ng-click="ctrl.processStep()">One step</button>
-            </p>
-            <p>
-                <button class="btn btn-info" ng-click="ctrl.randomMatrix()">Random</button>
-                <button class="btn btn-info" ng-click="ctrl.clearMatrix()">Clear</button>
-            </p>
-            <p>
-                <button class="btn btn-danger" ng-click="ctrl.stopLogic()">Stop</button>
-            </p>
-
-            <p> 
-                Epoch: {{ctrl.automate.epoch}}
-            </p>
-
-            <hr/>
-
-
             <div class="settings-container">
                 <button class="btn btn-info btn-xs" ng-click="ctrl.showSettings = !ctrl.showSettings">
                     {{ ctrl.showSettings ? "Hide " : "Show " }} settings
@@ -71,10 +58,7 @@
                             Web Workers </label> </p>
                 </div>
             </div>
-
         </div>
-
-
 
 
         <div class="presets-container animate-container"
@@ -92,6 +76,46 @@
                             ng-click="presetsCtrl.currentIndex = $index">
                         {{preset.name}}
                     </button>
+                </div>
+            </div>
+            <hr/>
+        </div>
+
+        <div class="generations-container animate-container"
+			ng-show="ctrl.mode == 1"
+			ng-controller="GenerationsCtrl as generationsCtrl">
+            <button class="btn btn-info btn-xs" ng-click="generationsCtrl.showActors = !generationsCtrl.showActors">
+                {{ generationsCtrl.showActors ? "Hide " : "Show " }} actors
+            </button>
+
+            <div class="animate-container" ng-hide="!generationsCtrl.showActors">
+                <div class="actors-list">
+					<br/>
+					<p>Actors count: <input type="number" class="form-control form-control__number navbar__input"
+											ng-model="ctrl.actorsCount"></p>
+					<div ng-repeat="(type, data) in generationsCtrl.actors">
+						<br/>
+						<p>Code: {{ type }}</p>
+						<p>Color: <input class="form-control form-control__number navbar__input"
+									style="background-color: {{data.color}}"
+									type="text" ng-model="data.color"></p>
+						<p>Birth friends: <input class="form-control form-control__number navbar__input"
+									type="number" ng-model="data.birthFriends"></p>
+						<p>Birth rate: <input class="form-control form-control__number navbar__input"
+									type="number" ng-model="data.birthRate"></p>
+						<p>die after: <input class="form-control form-control__number navbar__input"
+									type="number" ng-model="data.dieAfter"></p>
+						<p>child resource: <input class="form-control form-control__number navbar__input"
+									type="number" ng-model="data.childResource"></p>
+						<p>max resource: <input class="form-control form-control__number navbar__input"
+									type="number" ng-model="data.maxResource"></p>
+						<p>available cells: <input class="form-control form-control__number navbar__input"
+									ng-change="generationsCtrl.stringToArray(data, 'availableCells')"
+									type="text" ng-model="data.availableCellsString"></p>
+						<p>Kill: <input class="form-control form-control__number navbar__input"
+									ng-change="generationsCtrl.stringToArray(data, 'kill')"
+									type="text" ng-model="data.killString"></p>
+					</div>
                 </div>
             </div>
             <hr/>
@@ -117,5 +141,6 @@
 <script type="text/javascript" src="src/automateCtrl.js"></script>
 <script type="text/javascript" src="src/presetsData.js"></script>
 <script type="text/javascript" src="src/presetsCtrl.js"></script>
+<script type="text/javascript" src="src/generationsCtrl.js"></script>
 </body>
 </html>
