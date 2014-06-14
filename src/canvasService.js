@@ -72,7 +72,7 @@
 	CanvasService.prototype.updateCanvasCellGenerations = function updateCanvasCellAutomateCtrl(value, x, y) {
 		var actor = this.automate.actors[value];
 		if (actor) {
-			this.ctx.fillStyle = generations.typeData[actor.type].color;
+			this.ctx.fillStyle = this.automate.typeData[actor.type].color;
 		} else {
 			this.ctx.fillStyle = this.generationStyles[value];
 		}

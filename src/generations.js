@@ -71,8 +71,7 @@ window.generations = {
 			var bottomRowIndex = actor.coordinate + data.width;
 
 			// erase value on old actor coordinate
-			changedCells.push(1);
-			changedCells.push(actor.coordinate);
+			changedCells.push(1, actor.coordinate);
 
 			if (actor.resource === 0) {
 				delete data.actors[actorId];
@@ -82,7 +81,9 @@ window.generations = {
 			actor.resource--;
 
 			var typeData = data.typeData[actor.type];
-			var environment = new Uint16Array([topRowIndex-1, topRowIndex, topRowIndex+1, actor.coordinate+1, bottomRowIndex+1, bottomRowIndex, bottomRowIndex-1, actor.coordinate-1]);
+			var environment = new Uint32Array([topRowIndex-1, topRowIndex, topRowIndex+1, 
+											  actor.coordinate+1, bottomRowIndex+1, bottomRowIndex, 
+											  bottomRowIndex-1, actor.coordinate-1]);
 			var availableCells = [];
 			var destinationIndex = -1;
 			var friends = 0;
@@ -114,6 +115,7 @@ window.generations = {
 					type: actor.type,
 					resource: typeData.childResource
 				};
+				statesView[actor.cordinate] = this.lastActorId;
 			} else if (friends > typeData.dieAfter) {
 				statesView[actor.cordinate] = 1;
 				delete data.actors[actorId];
@@ -125,11 +127,10 @@ window.generations = {
 				destinationIndex = availableCells[Math.floor(Math.random()*(availableCells.length))];			
 			}
 
-			changedCells.push(actorId);
-			changedCells.push(destinationIndex);
+			changedCells.push(actorId, destinationIndex);
 			// update actor's coordinate
 			actor.coordinate = destinationIndex;
-			statesView[actor.coordinate] = actorId;
+			statesView[destinationIndex] = actorId;
 
 		}
 		return {changesBuffer: new Uint32Array(changedCells).buffer};
@@ -141,8 +142,8 @@ window.generations = {
 		this.width = cellsCount;
 
 		// create world with random objects (0 - empty space, 1 - object)
-		this.statesBuffer = new ArrayBuffer(this.length*2);
-		this.statesView = new Uint16Array(this.statesBuffer);
+		this.statesBuffer = new ArrayBuffer(this.length*4);
+		this.statesView = new Uint32Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
 			this.statesView[i] = random ? Math.floor(0.6 + Math.random()) : 1;
 		}
