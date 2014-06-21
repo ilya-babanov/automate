@@ -151,6 +151,9 @@ window.generations = {
 		this.actors = {};
 
 		if (random && actorsCount) {
+			if (rowsCount*cellsCount < actorsCount*3) {
+				actorsCount = 0;
+			}
 			this.lastActorId = 100;
 			actorsCount+=100;
 			// create live actors

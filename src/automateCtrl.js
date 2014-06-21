@@ -11,17 +11,17 @@
 		$timeout = $timeoutInstance;
 
 		// 0 - life, 1 - generations
-		this.mode = 1;
+		this.mode = 0;
 
 		this.actorsCount = 500;
-		this.timeoutMs = 10;
+		this.timeoutMs = 0;
 		this.canvasData = canvasData = canvasServiceObject.canvasData;
 		this.automate = life;
 		canvasService = canvasServiceObject;
 		canvasService.automate = this.automate;
-		canvasData.rowsCount = 120;
-		canvasData.cellsCount = 180;
-		canvasData.canvasRatio = 7;
+		canvasData.rowsCount = 30;
+		canvasData.cellsCount = 40;
+		canvasData.canvasRatio = 15;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
 		this.showSettings = true;

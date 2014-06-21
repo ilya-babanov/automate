@@ -29,11 +29,13 @@
 		if (currentPattern.array.length === 1) {
 			canvasService.automate.statesView[index] = canvasService.automate.statesView[index] === 1 ? 0 : 1;
 			canvasService.updateCanvasCell(canvasService.automate.statesView[index], cellsIndex, rowsIndex);
+			canvasService.automate.markDeadNeighbours(index);
 			return;
 		}
 
 		currentPattern.array.forEach(function (value) {
 			canvasService.automate.statesView[index] = value;
+			canvasService.automate.markDeadNeighbours(index);
 			canvasService.updateCanvasCell(value, cellsIndex, rowsIndex);
 			index++;
 			patternIndex++;

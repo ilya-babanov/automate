@@ -82,53 +82,58 @@ window.life = {
 	},
 	
 	process: function (data) {
-		var topCopiedRow = new Uint8Array(data.width),
-			middleCopiedRow = new Uint8Array(data.width),
-			statesView = new Uint8Array(data.statesBuffer),
-			changedCells = [],
-			currentIndex = 0, relativeIndex = 0, bottomIndex = 0,
-			end = data.width*data.end;
-		
-		if (data.start !== 0) {
-			for (currentIndex; currentIndex < data.width; currentIndex++) {
-				topCopiedRow[currentIndex] = statesView[currentIndex];
-			}
-		}
-		
-		currentIndex = data.start*data.width;
-		bottomIndex = currentIndex + data.width;
-		relativeIndex = 0;
+		var statesView = new Uint8Array(data.statesBuffer);
+		var changedCells = [];
+		var currentIndex = data.start*data.width;
+		var bottomIndex = currentIndex + data.width;
+		var topIndex = currentIndex - data.width;
+		var end = data.width*data.end;
+
 		while (currentIndex < end) {
-			var oldIndex = middleCopiedRow[relativeIndex] = statesView[currentIndex],
-				sum = (topCopiedRow[relativeIndex-1] || 0) +
-					topCopiedRow[relativeIndex] +
-					(topCopiedRow[relativeIndex+1] || 0) +
-					(statesView[currentIndex+1] || 0) +
-					(statesView[bottomIndex+1] || 0) +
-					statesView[bottomIndex] +
-					(statesView[bottomIndex-1] || 0) +
-					(middleCopiedRow[relativeIndex-1] || 0);
+			var oldValue = statesView[currentIndex];
+			if (oldValue !== 0) {
+				var sum = (statesView[topIndex-1] || 0)%2 +
+					statesView[topIndex]%2 +
+					(statesView[topIndex+1] || 0)%2 +
+					(statesView[currentIndex+1] || 0)%2 +
+					(statesView[bottomIndex+1] || 0)%2 +
+					statesView[bottomIndex]%2 +
+					(statesView[bottomIndex-1] || 0)%2 +
+					(statesView[currentIndex-1] || 0)%2;
 
-			if (oldIndex === 1 && (sum === 2 || sum === 3) ) {
-				statesView[currentIndex] = 1;
-			} else if (sum === 3) {
-				statesView[currentIndex] = 1;
-			} else {
-				statesView[currentIndex] = 0;
+				var newValue;
+				if (oldValue === 1 && (sum === 2 || sum === 3) ) {
+					newValue = 1;
+				} else if (sum === 3) {
+					newValue = 1;
+
+					// mark neighbor cells
+					var neighborIndex = topIndex - 1;
+					for (var i = 0, l = 3; i < l; i++) {
+						for (var j = 0; j < l; j++) {
+							if (statesView[neighborIndex] === 0) {
+								changedCells.push(2);
+								changedCells.push(neighborIndex + data.offset);
+							}
+							neighborIndex++;
+						}
+						neighborIndex += data.width - 3;
+					}
+
+				} else if (sum !== 0) {
+					newValue = 2;
+				} else {
+					newValue = 2;
+				}
+
+				if (newValue !== oldValue) {
+					changedCells.push(newValue);
+					changedCells.push(currentIndex+data.offset);
+				}
 			}
-
-			if (statesView[currentIndex] !== oldIndex) {
-				changedCells.push(statesView[currentIndex]);
-				changedCells.push(currentIndex+data.offset);
-			}
-
 			currentIndex++;
+			topIndex++;
 			bottomIndex++;
-			relativeIndex = currentIndex % data.width;
-			if (relativeIndex === 0) {
-				topCopiedRow = middleCopiedRow;
-				middleCopiedRow = new Uint8Array(data.width);
-			}
 		}
 		return {changesBuffer: new Uint32Array(changedCells).buffer};
 	},
@@ -140,9 +145,30 @@ window.life = {
 		this.statesBuffer = new ArrayBuffer(this.length);
 		this.statesView = new Uint8Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
-			this.statesView[i] = random ? Math.round(Math.random()*0.75) : 0;
+			this.statesView[i] = random ? Math.round(Math.random()*0.57) : 0;
+		}
+		for (i = 0; i < this.length; i++) {
+			var value = this.statesView[i];
+			// mark dead neighbours as possible for live
+			if (value === 1) {
+				this.markDeadNeighbours(i);
+			}
 		}
 		return this.statesView;
+	},
+
+	markDeadNeighbours: function (index) {
+		// go to row above and start from left cell
+		index = index - this.width - 1;
+		for (var i = 0, l = 3; i < l; i++) {
+			for (var j = 0; j < l; j++) {
+				if (this.statesView[index] === 0) {
+					this.statesView[index] = 2;
+				}
+				index++;
+			}
+			index += this.width - 3;
+		}
 	},
 
 	updateMatrix: function (changedData) {

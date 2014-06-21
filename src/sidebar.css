@@ -1,37 +1,37 @@
 .side-bar {
-    text-align: center;
-    border-right: 1px solid #7eeafe;
-    width: 250px;
+	text-align: center;
+	border-right: 1px solid #7eeafe;
+	width: 250px;
 	height: 100%;
 	overflow: auto;
 	position: relative;
 }
 
 .form-control__number {
-    width: 100px;
-    display: inline;
+	width: 100px;
+	display: inline;
 }
 
 
 .navbar__input {
-    width: 65px;
+	width: 65px;
 	height: 25px;
-    padding: 2px;
+	padding: 2px;
 	text-align: center;
 }
 
 .navbar__checkbox {
-    margin-top: 10px;
+	margin-top: 10px;
 }
 
 .navbar__sub-bar {
-    text-align: right;
-    padding-right: 10px;
-    margin-top: 12px;
+	text-align: right;
+	padding-right: 10px;
+	margin-top: 12px;
 }
 
 .settings-container {
-	font-size: 12px;
+	font-size: 13px;
 }
 
 .generations-container{
@@ -39,6 +39,6 @@
 }
 
 .actors-list {
-    text-align: right;
+	text-align: right;
 	padding-right: 10px;
 }

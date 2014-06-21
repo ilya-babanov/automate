@@ -58,7 +58,8 @@
 
 	CanvasService.prototype.lifeStyles = {
 		'0': '#7eeafe',
-		'1': '#ffffff'
+		'1': '#ffffff',
+		'2': '#8ffbfe',
 	};
 	CanvasService.prototype.updateCanvasCellLife = function updateCanvasCellAutomateCtrl(value, x, y) {
 		this.ctx.fillStyle = this.lifeStyles[value];

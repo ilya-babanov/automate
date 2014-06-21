@@ -1,16 +1,16 @@
 html,
 body,
 .content {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-	font-size: 11px;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-size: 13px;
 }
 
 .top-bar {
-	font-size: 1jpx;
+	font-size: 13px;
 	width: 100vw;
 	height: 60px;
 	position: fixed;
@@ -18,48 +18,48 @@ body,
 	overflow: hidden;
 	z-index: 100;
 	border-bottom: 1px solid #7eeafe;
-	padding: 14px;
+	padding: 14px 14px 14px 40px;
 }
 
 .content {
-    position: relative;
-    display: flex;
-    flex-flow: row;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    align-content: stretch;
-    height: 100%;
+	position: relative;
+	display: flex;
+	flex-flow: row;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	align-content: stretch;
+	height: 100%;
 	padding-top: 60px;
 }
 
 .container-matrix {
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    overflow: auto;
+	width: 100%;
+	height: 100%;
+	max-height: 100%;
+	overflow: auto;
 }
 
 .automate-canvas {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 
 .animate-container {
-    position: relative;
+	position: relative;
 }
 
 .animate-container.ng-hide-remove,
 .animate-container.ng-hide-add {
-    transition: all 0.2s ease;
-    display: block!important;
+	transition: all 0.2s ease;
+	display: block!important;
 }
 .animate-container.ng-hide-add.ng-hide-add-active,
 .animate-container.ng-hide-remove {
-    opacity: 0;
-    max-height: 0;
+	opacity: 0;
+	max-height: 0;
 }
 .animate-container.ng-hide-add,
 .animate-container.ng-hide-remove.ng-hide-remove-active{
-    opacity: 1;
-    max-height: 300px;
+	opacity: 1;
+	max-height: 300px;
 }
