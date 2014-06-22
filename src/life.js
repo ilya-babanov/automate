@@ -83,7 +83,9 @@ window.life = {
 	
 	process: function (data) {
 		var statesView = new Uint8Array(data.statesBuffer);
-		var changedCells = [];
+		var lifeCells = [];
+		var sleepCells = [];
+		var deadCells = [];
 		var currentIndex = data.start*data.width;
 		var bottomIndex = currentIndex + data.width;
 		var topIndex = currentIndex - data.width;
@@ -93,49 +95,43 @@ window.life = {
 			var oldValue = statesView[currentIndex];
 			if (oldValue !== 0) {
 				var sum = (statesView[topIndex-1] || 0)%2 +
-					statesView[topIndex]%2 +
+					(statesView[topIndex] || 0)%2 +
 					(statesView[topIndex+1] || 0)%2 +
 					(statesView[currentIndex+1] || 0)%2 +
 					(statesView[bottomIndex+1] || 0)%2 +
-					statesView[bottomIndex]%2 +
+					(statesView[bottomIndex] || 0)%2 +
 					(statesView[bottomIndex-1] || 0)%2 +
 					(statesView[currentIndex-1] || 0)%2;
 
-				var newValue;
-				if (oldValue === 1 && (sum === 2 || sum === 3) ) {
-					newValue = 1;
+				if (oldValue === 1 && (sum === 2 || sum === 3)) {
+					//lifeCells.push(1, currentIndex+data.offset);
 				} else if (sum === 3) {
-					newValue = 1;
+					lifeCells.push(1, currentIndex+data.offset);
 
 					// mark neighbor cells
 					var neighborIndex = topIndex - 1;
 					for (var i = 0, l = 3; i < l; i++) {
 						for (var j = 0; j < l; j++) {
-							if (statesView[neighborIndex] === 0) {
-								changedCells.push(2);
-								changedCells.push(neighborIndex + data.offset);
+							if (statesView[neighborIndex] !== 1) {
+								sleepCells.push(2, neighborIndex+data.offset);
 							}
 							neighborIndex++;
 						}
 						neighborIndex += data.width - 3;
 					}
 
-				} else if (sum !== 0) {
-					newValue = 2;
+				} else if (sum !== 0 || oldValue === 1) {
+					sleepCells.push(2, currentIndex+data.offset);
 				} else {
-					newValue = 2;
-				}
-
-				if (newValue !== oldValue) {
-					changedCells.push(newValue);
-					changedCells.push(currentIndex+data.offset);
+					deadCells.push(0, currentIndex+data.offset);
 				}
 			}
+
 			currentIndex++;
 			topIndex++;
 			bottomIndex++;
 		}
-		return {changesBuffer: new Uint32Array(changedCells).buffer};
+		return {changesBuffer: new Uint32Array(lifeCells.concat(sleepCells).concat(deadCells)).buffer};
 	},
 
 	createMatrix: function createMatrixAutomateCtrl(rowsCount, cellsCount, random) {

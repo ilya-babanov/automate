@@ -19,9 +19,9 @@
 		this.automate = life;
 		canvasService = canvasServiceObject;
 		canvasService.automate = this.automate;
-		canvasData.rowsCount = 30;
-		canvasData.cellsCount = 40;
-		canvasData.canvasRatio = 15;
+		canvasData.rowsCount = 90;
+		canvasData.cellsCount = 160;
+		canvasData.canvasRatio = 9;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
 		this.showSettings = true;
