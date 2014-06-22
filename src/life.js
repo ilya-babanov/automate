@@ -110,14 +110,12 @@ window.life = {
 
 					// mark neighbor cells
 					var neighborIndex = topIndex - 1;
-					for (var i = 0, l = 3; i < l; i++) {
-						for (var j = 0; j < l; j++) {
+					for (var i = 0, l = 3; i < l; i++, neighborIndex += data.width - 3) {
+						for (var j = 0; j < l; j++, neighborIndex++) {
 							if (statesView[neighborIndex] !== 1) {
 								sleepCells.push(2, neighborIndex+data.offset);
 							}
-							neighborIndex++;
 						}
-						neighborIndex += data.width - 3;
 					}
 
 				} else if (sum !== 0 || oldValue === 1) {

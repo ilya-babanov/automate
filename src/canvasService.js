@@ -16,7 +16,7 @@
 		canvasData.canvas.width = canvasData.cellsCount * canvasData.canvasRatio;
 		canvasData.canvas.height = canvasData.rowsCount * canvasData.canvasRatio;
 		this.ctx = canvasData.canvas.getContext('2d');
-		this.ctx.strokeStyle = '#efefef';
+		this.ctx.strokeStyle = '#ededff';
 		this.updateWholeCanvas(this.automate.statesView);
 
 		//canvasData.canvas.addEventListener('click', this.binded.onCanvasClick);
