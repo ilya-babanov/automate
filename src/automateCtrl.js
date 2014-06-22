@@ -2,7 +2,6 @@
 
 (function () {
 	var $timeout,
-		runTimeoutPromise,
 		changeSizePromise,
 		canvasData,
 		canvasService;
@@ -19,9 +18,9 @@
 		this.automate = life;
 		canvasService = canvasServiceObject;
 		canvasService.automate = this.automate;
-		canvasData.rowsCount = 90;
-		canvasData.cellsCount = 160;
-		canvasData.canvasRatio = 9;
+		canvasData.rowsCount = 120;
+		canvasData.cellsCount = 200;
+		canvasData.canvasRatio = 6;
 		canvasData.cellSize = canvasData.canvasRatio - 2;
 
 		this.showSettings = true;
@@ -38,7 +37,6 @@
 	};
 
 	AutomateCtrl.prototype.startLogic = function startLogic() {
-		$timeout.cancel(runTimeoutPromise);
 		this.automate.stopped = false;
 		this.step();
 		this.run();
@@ -73,7 +71,6 @@
 
 	AutomateCtrl.prototype.stopLogic = function stopLogic() {
 		this.automate.stopped = true;
-		$timeout.cancel(runTimeoutPromise);
 	};
 
 	AutomateCtrl.prototype.processStep = function processStep() {
@@ -108,7 +105,7 @@
 	};
 
 	AutomateCtrl.prototype.run = function run() {
-		runTimeoutPromise = $timeout(function () {
+		setTimeout(function () {
 			this.step().then(function () {
 				if (!this.automate.stopped) { this.run(); }
 			}.bind(this));

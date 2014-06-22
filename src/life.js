@@ -139,7 +139,7 @@ window.life = {
 		this.statesBuffer = new ArrayBuffer(this.length);
 		this.statesView = new Uint8Array(this.statesBuffer);
 		for (var i = 0; i < this.length; i++) {
-			this.statesView[i] = random ? Math.round(Math.random()*0.57) : 0;
+			this.statesView[i] = random ? Math.round(Math.random()*0.64) : 0;
 		}
 		for (i = 0; i < this.length; i++) {
 			var value = this.statesView[i];
@@ -154,14 +154,12 @@ window.life = {
 	markDeadNeighbours: function (index) {
 		// go to row above and start from left cell
 		index = index - this.width - 1;
-		for (var i = 0, l = 3; i < l; i++) {
-			for (var j = 0; j < l; j++) {
-				if (this.statesView[index] === 0) {
+		for (var i = 0, l = 3; i < l; i++, index += this.width - 3) {
+			for (var j = 0; j < l; j++, index++) {
+				if (this.statesView[index] !== 1) {
 					this.statesView[index] = 2;
 				}
-				index++;
 			}
-			index += this.width - 3;
 		}
 	},
 
